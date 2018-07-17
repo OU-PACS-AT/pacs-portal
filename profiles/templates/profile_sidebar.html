@@ -1,0 +1,10 @@
+<li class="{% if 'profiles' in sidebar_group %}active{% endif %}">
+    <a href="#" data-toggle="collapse" data-target="#account_settings" class="{% if 'profiles' in sidebar_group %}collapsed{% endif %}" aria-expanded="true">
+        <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Manage Account<span class="caret"></span>
+    </a>
+    <ul id="account_settings" class="sidebar-items collapse {% if 'profiles' in sidebar_group %}in{% endif %}" aria-expanded="true">
+        <li>{% include '_sidebar_item.html' with url='secondary_email_change' label='Update Secondary Email'%}</li>
+        <li>{% include '_sidebar_item.html' with url='password_change' label='Change Password'%}</li>
+        <li>{% include '_sidebar_item.html' with url='password_reset' label='Reset Password'%}</li>
+    </ul>
+</li>

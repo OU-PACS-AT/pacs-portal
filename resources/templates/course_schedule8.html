@@ -1,0 +1,909 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+    Course Schedule
+{% endblock page_title %}
+{% block page_headline %}
+    <div class="col-xs-12"><h1 align="center">Course Schedule - 8 Units</h1></div>
+{% endblock page_headline %}
+
+{% block content %}
+             
+ 
+	   <div class="unit1" align="center">       
+        <label class="123" for="id_NOU">Unit 1</label>
+        <input class="test" name="NOU" id="id_NOA1" placeholder="Number of Assignments"></input>
+       <br>             
+    <div class="list1" align="center">        
+        <input class="1name" type="text"  placeholder="Assignment Name" id="1name1"></input> 
+        <input class="1dd" type="text" placeholder="Due Date" id="1dd1"></input> 
+        <input class="1pts" type="text" id="1pts1" placeholder="Points"></input>
+   </div>
+   </div>        
+      <br>  <br>  
+       <div class="unit2" id="unit2" align="center">        
+        <label class="abc" for="id_NOU">Unit 2</label>
+        <input class="test" name="NOU" id="id_NOA2" placeholder="Number of Assignments"></input>
+       <br>      
+    <div class="list2" align="center">        
+        <input class="2name" type="text"  placeholder="Assignment Name" id="2name1"></input>
+        <input class="2dd" type="text" id="2dd1" placeholder="Due Date" ></input>
+        <input class="2pts" type="text" id="2pts1" placeholder="Points" ></input>
+   </div>
+   </div>          
+       <br>  <br>  
+       <div class="unit3" align="center">        
+        <label class="abc" for="id_NOU">Unit 3</label>
+        <input class="test" name="NOU" id="id_NOA3" placeholder="Number of Assignments"></input>
+       <br>      
+    <div class="list3" align="center">        
+        <input class="3name" type="text"  placeholder="Assignment Name" id="3name1"></input>
+        <input class="3dd" type="text" id="3dd1" placeholder="Due Date" ></input>
+        <input class="3pts" type="text" id="3pts1" placeholder="Points" ></input>
+   </div>
+   </div>          
+       <br>  <br>  
+       <div class="unit4" align="center">        
+        <label class="abc" for="id_NOU">Unit 4</label>
+        <input class="test" name="NOU" id="id_NOA4" placeholder="Number of Assignments"></input>
+       <br>
+    <div class="list4" align="center">        
+        <input class="4name" type="text"  placeholder="Assignment Name" id="4name1"></input>
+        <input class="4dd" type="text" id="4dd1" placeholder="Due Date" ></input>
+        <input class="4pts" type="text" id="4pts1" placeholder="Points" ></input>
+   </div>
+   </div>      
+        <br>  <br>    
+       <div class="unit5"  align="center">        
+        <label class="abc" for="id_NOU">Unit 5</label>
+        <input class="test" name="NOU" id="id_NOA5" placeholder="Number of Assignments"></input>
+       <br>
+    <div class="list5" align="center">        
+        <input class="5name" type="text"  placeholder="Assignment Name" id="5name1"></input> 
+        <input class="5dd" type="text" id="5dd1" placeholder="Due Date" ></input> 
+        <input class="5pts" type="text" id="5pts1" placeholder="Points" ></input>
+   </div>
+   </div>          
+       <br>  <br>  
+       <div class="unit6"  align="center">        
+        <label class="abc" for="id_NOU">Unit 6</label>
+        <input class="test" name="NOU" id="id_NOA6" placeholder="Number of Assignments"></input>
+       <br>
+    <div class="list6" align="center">        
+        <input class="6name" type="text"  placeholder="Assignment Name" id="6name1"></input> 
+        <input class="6dd" type="text" id="6dd1" placeholder="Due Date" ></input> 
+        <input class="6pts" type="text" id="6pts1" placeholder="Points" ></input>
+   </div>
+   </div>          
+       <br>  <br>  
+       <div class="unit7"  align="center">       
+        <label class="abc" for="id_NOU">Unit 7</label>
+        <input class="test" name="NOU" id="id_NOA7" placeholder="Number of Assignments"></input>
+       <br> 
+    <div class="list7" align="center">        
+        <input class="7name" type="text"  placeholder="Assignment Name" id="7name1"></input> 
+        <input class="7dd" type="text" id="7dd1" placeholder="Due Date" ></input> 
+        <input class="7pts" type="text" id="7pts1" placeholder="Points" ></input>
+   </div>
+   </div>          
+       <br>  <br>  
+       <div class="unit8"  align="center">        
+        <label class="abc" for="id_NOU">Unit 8</label>
+        <input class="test" name="NOU" id="id_NOA8" placeholder="Number of Assignments"></input>
+       <br>    
+    <div class="list8" align="center">        
+        <input class="8name" type="text"  placeholder="Assignment Name" id="8name1"></input> 
+        <input class="8dd" type="text" id="8dd1" placeholder="Due Date" ></input> 
+        <input class="8pts" type="text" id="8pts1" placeholder="Points" ></input>
+   </div>
+   </div>   
+   <br>
+   
+ 	<div align="center">
+   <!-- <button onclick="exportName()" onMouseDown="exportdd()" onMouseUp="exportpts()">Generate</button> -->
+   		<button class="btn-success" onclick="xprt()">Generate</button>
+   		<button class="btn-success" id="cpybtn" onclick="Javascript: copyToClipboard()">Copy HTML</button> 
+   </div>
+   
+   <div name="tables" style="display:none">   	
+   <div id="tu8">
+ <table style="border: 2px solid #000000; border-collapse: collapse;" class="sched-text" id="tble8">
+	<tbody>
+    	<tr style="border: 1px solid #000000; background-color: #dddddd;">
+        	<th style="width: 80px;"><span><strong>Unit</strong></span></th>
+            <th style="width: 290px;"><span><strong>Assignment</strong></span></th>
+            <th style="width: 140px;"><span><strong>Due Date</strong></span></th>
+            <th style="width: 40px;"><span><strong>Points</strong></span></th>
+        </tr>
+        <tr style="background-color: #ffffff;">
+			<td >Unit 1:</td>
+			<td  id="1tname1">&nbsp;</td>
+			<td id="1tdd1">&nbsp;</td>
+			<td style="text-align: center;" id="1tpts1">&nbsp;</td>
+		</tr> 
+        <tr style="background-color: #dddddd;">
+			<td >Unit 2:</td>
+			<td id="2tname1">&nbsp;</td>
+			<td id="2tdd1">&nbsp;</td>
+			<td style="text-align: center;" id="2tpts1">&nbsp;</td>
+		</tr>
+        <tr style="background-color: #ffffff;">
+			<td >Unit 3:</td>
+			<td id="3tname1">&nbsp;</td>
+			<td id="3tdd1">&nbsp;</td>
+			<td style="text-align: center;" id="3tpts1">&nbsp;</td>
+		</tr>
+        <tr style="background-color: #dddddd;">
+			<td >Unit 4:</td>
+			<td  id="4tname1">&nbsp;</td>
+			<td  id="4tdd1">&nbsp;</td>
+			<td style="text-align: center;" id="4tpts1"></td>
+		</tr>
+        <tr style="background-color: #ffffff;">
+			<td >Unit 5:</td>
+			<td  id="5tname1">&nbsp;</td>
+			<td  id="5tdd1">&nbsp;</td>
+			<td style="text-align: center;" id="5tpts1">&nbsp;</td>
+		</tr> 
+        <tr style="background-color: #dddddd;">
+			<td >Unit 6:</td>
+			<td id="6tname1">&nbsp;</td>
+			<td id="6tdd1">&nbsp;</td>
+			<td style="text-align: center;" id="6tpts1">&nbsp;</td>
+		</tr>
+        <tr style="background-color: #ffffff;">
+			<td >Unit 7:</td>
+			<td id="7tname1">&nbsp;</td>
+			<td id="7tdd1">&nbsp;</td>
+			<td style="text-align: center;" id="7tpts1">&nbsp;</td>
+		</tr>
+        <tr style="background-color: #dddddd;">
+			<td >Unit 8:</td>
+			<td id="8tname1">&nbsp;</td>
+			<td id="8tdd1">&nbsp;</td>
+			<td style="text-align: center;" id="8tpts1"></td>
+		</tr>
+        <tr style="border: 1px solid #000000; background-color: #ffffff;">
+			<td colspan="3" ><span><strong>Total Points:</strong></span></td>
+			<td style="text-align: center;" id="tpoints"></td>
+		</tr>
+	</tbody>
+</table>  
+</div>
+</div>
+
+   
+   
+   
+<!--if functions -->   
+<script>
+
+
+var table = document.getElementById("tble8");
+
+var ray1Name = ["1name1"];
+
+var tray1Name = ["1tname1"];
+
+var ray1Dd = ["1dd1"];
+
+var tray1Dd = ["1tdd1"];
+
+var ray1Pts = ["1pts1"];
+
+var tray1Pts = ["1tpts1"];
+
+var ray1Nums = [];
+
+var ray2Name = ["2name1"];
+
+var tray2Name = ["2tname1"];
+
+var ray2Dd = ["2dd1"];
+
+var tray2Dd = ["2tdd1"];
+
+var ray2Pts = ["2pts1"];
+
+var tray2Pts = ["2tpts1"];
+
+var ray2Nums = [];
+
+var ray3Name = ["3name1"];
+
+var tray3Name = ["3tname1"];
+
+var ray3Dd = ["3dd1"];
+
+var tray3Dd = ["3tdd1"];
+
+var ray3Pts = ["3pts1"];
+
+var tray3Pts = ["3tpts1"];
+
+var ray3Nums = [];
+
+var ray4Name = ["4name1"];
+
+var tray4Name = ["4tname1"];
+
+var ray4Dd = ["4dd1"];
+
+var tray4Dd = ["4tdd1"];
+
+var ray4Pts = ["4pts1"];
+
+var tray4Pts = ["4tpts1"];
+
+var ray4Nums = [];
+
+var ray5Name = ["5name1"];
+
+var tray5Name = ["5tname1"];
+
+var ray5Dd = ["5dd1"];
+
+var tray5Dd = ["5tdd1"];
+
+var ray5Pts = ["5pts1"];
+
+var tray5Pts = ["5tpts1"];
+
+var ray5Nums = [];
+
+var ray6Name = ["6name1"];
+
+var tray6Name = ["6tname1"];
+
+var ray6Dd = ["6dd1"];
+
+var tray6Dd = ["6tdd1"];
+
+var ray6Pts = ["6pts1"];
+
+var tray6Pts = ["6tpts1"];
+
+var ray6Nums = [];
+
+var ray7Name = ["7name1"];
+
+var tray7Name = ["7tname1"];
+
+var ray7Dd = ["7dd1"];
+
+var tray7Dd = ["7tdd1"];
+
+var ray7Pts = ["7pts1"];
+
+var tray7Pts = ["7tpts1"];
+
+var ray7Nums = [];
+
+var ray8Name = ["8name1"];
+
+var tray8Name = ["8tname1"];
+
+var ray8Dd = ["8dd1"];
+
+var tray8Dd = ["8tdd1"];
+
+var ray8Pts = ["8pts1"];
+
+var tray8Pts = ["8tpts1"];
+
+var ray8Nums = [];
+
+var dtable = document.getElementById("tu8");
+
+<!--clone form functions-->
+
+
+var a = 0;
+var b = 0;
+var c = 0;
+var d = 0;
+var e = 0;
+var f = 0;
+var g = 0;
+var h = 0;
+var i = 0;
+var j = 0;
+var k = 0;
+var l = 0;
+var m = 0;
+var n = 0;
+var o = 0;
+var p = 0;
+
+var counter1 = 1;
+$(function (){
+    $("#id_NOA1").on("change", function(){
+		
+        var $ul = $(this).parent();
+        var val = $(this).val();
+		while($ul.find(".list1").length < val){      
+		var $item = $ul.find(".list1:last").clone();
+		ray1Nums.push(counter1);
+		counter1++;
+		$item.find(".1name").attr("id", "1name"+counter1);
+		$item.find(".1dd").attr("id", "1dd"+counter1); 
+		$item.find(".1pts").attr("id", "1pts"+counter1);
+		var $first = ("1name"+counter1);
+		var $second = ("1dd"+counter1); 
+		var $third = ("1pts"+counter1);
+		ray1Name.push($first);
+		ray1Dd.push($second); 
+		ray1Pts.push($third);        
+        $ul.append($item);
+		}
+        if($ul.find(".list1").length > val){
+            $ul.find(".list1:gt("+(val-1)+")").remove();
+			ray1Nums.pop();
+			ray1Name.pop();
+			ray1Dd.pop(); 
+			ray1Pts.pop();
+            counter1 = val;
+        }
+		while(a <= val){
+		a++;
+    	var row = table.insertRow(a+1);
+		row.setAttribute("style", "background-color: #ffffff; font-size: 12pt; font-family: times new roman,times,serif;");
+    	var cell1 = row.insertCell(0);
+    	var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);		
+		var cell4 = row.insertCell(3);
+		cell4.setAttribute("style", "text-align: center;");
+		
+    	cell1.innerHTML = "&nbsp;&nbsp;";
+		cell2.id = "1tname"+(a+1);
+		cell3.id = "1tdd"+(a+1);
+		cell4.id = "1tpts"+(a+1);
+		tray1Name.push("1tname"+(a+1));
+		tray1Dd.push("1tdd"+(a+1));
+		tray1Pts.push("1tpts"+(a+1));
+
+		
+	}
+		while(a >= val){
+			table.deleteRow(a+1);
+			tray1Name.pop();
+			tray1Dd.pop();
+			tray1Pts.pop();
+			a--;
+		}
+      
+    });
+});
+
+var counter2 = 1;
+$(function (){
+    $("#id_NOA2").on("change", function(){
+        var $ul = $(this).parent();
+        var val = $(this).val();
+		while($ul.find(".list2").length < val){        
+		var $item = $ul.find(".list2:last").clone();
+		ray2Nums.push(counter2);
+		counter2++;
+		$item.find(".2name").attr("id", "2name"+counter2);
+		$item.find(".2dd").attr("id", "2dd"+counter2); 
+		$item.find(".2pts").attr("id", "2pts"+counter2);
+		var $first = ("2name"+counter2);
+		var $second = ("2dd"+counter2); 
+		var $third = ("2pts"+counter2);
+		ray2Name.push($first);
+		ray2Dd.push($second); 
+		ray2Pts.push($third);         
+        $ul.append($item);
+		 }
+        if($ul.find(".list2").length > val){
+            $ul.find(".list2:gt("+(val-1)+")").remove();
+			ray2Nums.pop();
+			ray2Name.pop();
+			ray2Dd.pop(); 
+			ray2Pts.pop();
+            counter2 = val;
+        }
+      	while(b <= val){
+		b++;
+		
+    	var row = table.insertRow(a+b+2);
+		row.setAttribute("style", "background-color: #dddddd; font-size: 12pt; font-family: times new roman,times,serif;");
+    	var cell1 = row.insertCell(0);
+    	var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);		
+		var cell4 = row.insertCell(3);
+		cell4.setAttribute("style", "text-align: center;");
+		
+    	cell1.innerHTML = "&nbsp;&nbsp;";
+		cell2.id = "2tname"+(b+1);
+		cell3.id = "2tdd"+(b+1);
+		cell4.id = "2tpts"+(b+1);
+		tray2Name.push("2tname"+(b+1));
+		tray2Dd.push("2tdd"+(b+1));
+		tray2Pts.push("2tpts"+(b+1));
+		
+	}
+		while(b >= val){
+			table.deleteRow(a+b+2);
+			tray2Name.pop();
+			tray2Dd.pop();
+			tray2Pts.pop();
+			b--;
+		}
+      
+    });
+});
+
+var counter3 = 1;
+$(function (){
+    $("#id_NOA3").on("change", function(){
+        var $ul = $(this).parent();
+        var val = $(this).val();
+		while($ul.find(".list3").length < val){        
+		var $item = $ul.find(".list3:last").clone();
+		ray3Nums.push(counter3);
+		counter3++;
+		$item.find(".3name").attr("id", "3name"+counter3);
+		$item.find(".3dd").attr("id", "3dd"+counter3); 
+		$item.find(".3pts").attr("id", "3pts"+counter3); 
+		var $first = ("3name"+counter3);
+		var $second = ("3dd"+counter3); 
+		var $third = ("3pts"+counter3);
+		ray3Name.push($first);
+		ray3Dd.push($second); 
+		ray3Pts.push($third);         
+        $ul.append($item);
+		 }
+        if($ul.find(".list3").length > val){
+            $ul.find(".list3:gt("+(val-1)+")").remove();
+			ray3Nums.pop();
+			ray3Name.pop();
+			ray3Dd.pop(); 
+			ray3Pts.pop();
+            counter3 = val;
+        }
+        while(c <= val){
+		c++;
+		
+    	var row = table.insertRow(a+b+c+3);
+		row.setAttribute("style", "background-color: #ffffff; font-size: 12pt; font-family: times new roman,times,serif;");
+    	var cell1 = row.insertCell(0);
+    	var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);		
+		var cell4 = row.insertCell(3);
+		cell4.setAttribute("style", "text-align: center;");
+		
+    	cell1.innerHTML = "&nbsp;&nbsp;";
+		cell2.id = "3tname"+(c+1);
+		cell3.id = "3tdd"+(c+1);
+		cell4.id = "3tpts"+(c+1);
+		tray3Name.push("3tname"+(c+1));
+		tray3Dd.push("3tdd"+(c+1));
+		tray3Pts.push("3tpts"+(c+1));
+		
+	}
+		while(c >= val){
+			table.deleteRow(a+b+c+3);
+			tray3Name.pop();
+			tray3Dd.pop();
+			tray3Pts.pop();
+			c--;
+		}
+    });
+});
+
+var counter4 = 1;
+$(function (){
+    $("#id_NOA4").on("change", function(){
+        var $ul = $(this).parent();
+        var val = $(this).val();
+		while($ul.find(".list4").length < val){        
+		var $item = $ul.find(".list4:last").clone();
+		ray4Nums.push(counter4);
+		counter4++;
+		$item.find(".4name").attr("id", "4name"+counter4);
+		$item.find(".4dd").attr("id", "4dd"+counter4); 
+		$item.find(".4pts").attr("id", "4pts"+counter4);
+		var $first = ("4name"+counter4);
+		var $second = ("4dd"+counter4); 
+		var $third = ("4pts"+counter4);
+		ray4Name.push($first);
+		ray4Dd.push($second); 
+		ray4Pts.push($third);                  
+        $ul.append($item);
+		 }
+        if($ul.find(".list4").length > val){
+            $ul.find(".list4:gt("+(val-1)+")").remove();
+			ray4Nums.pop();
+			ray4Name.pop();
+			ray4Dd.pop(); 
+			ray4Pts.pop();
+            counter4 = val;
+        }
+		while(d <= val){
+		d++;
+		
+    	var row = table.insertRow(a+b+c+d+4);
+		row.setAttribute("style", "background-color: #dddddd; font-size: 12pt; font-family: times new roman,times,serif;");
+    	var cell1 = row.insertCell(0);
+    	var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);		
+		var cell4 = row.insertCell(3);
+		cell4.setAttribute("style", "text-align: center;");
+		
+    	cell1.innerHTML = "&nbsp;&nbsp;";
+		cell2.id = "4tname"+(d+1);
+		cell3.id = "4tdd"+(d+1);
+		cell4.id = "4tpts"+(d+1);
+		tray4Name.push("4tname"+(d+1));
+		tray4Dd.push("4tdd"+(d+1));
+		tray4Pts.push("4tpts"+(d+1));
+		
+	}
+		while(d >= val){
+			table.deleteRow(a+b+c+d+4);
+			tray4Name.pop();
+			tray4Dd.pop();
+			tray4Pts.pop();
+			d--;
+		}
+    });
+});
+
+var counter5 = 1;
+
+$(function (){
+    $("#id_NOA5").on("change", function(){
+        var $ul = $(this).parent();
+        var val = $(this).val();
+		while($ul.find(".list5").length < val){        
+		var $item = $ul.find(".list5:last").clone();
+		ray5Nums.push(counter5);
+		counter5++;
+		$item.find(".5name").attr("id", "5name"+counter5);
+		$item.find(".5dd").attr("id", "5dd"+counter5); 
+		$item.find(".5pts").attr("id", "5pts"+counter5);
+		var $first = ("5name"+counter5);
+		var $second = ("5dd"+counter5); 
+		var $third = ("5pts"+counter5);
+		ray5Name.push($first);
+		ray5Dd.push($second); 
+		ray5Pts.push($third);            
+        $ul.append($item);
+		 }
+        if($ul.find(".list5").length > val){
+            $ul.find(".list5:gt("+(val-1)+")").remove();
+			ray5Nums.pop();
+			ray5Name.pop();
+			ray5Dd.pop(); 
+			ray5Pts.pop();
+            counter5 = val;
+        }
+      while(e <= val){
+		e++;
+		
+    	var row = table.insertRow(a+b+c+d+e+5);
+		row.setAttribute("style", "background-color: #ffffff; font-size: 12pt; font-family: times new roman,times,serif;");
+    	var cell1 = row.insertCell(0);
+    	var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);		
+		var cell4 = row.insertCell(3);
+		cell4.setAttribute("style", "text-align: center;");
+		
+    	cell1.innerHTML = "&nbsp;&nbsp;";
+		cell2.id = "5tname"+(e+1);
+		cell3.id = "5tdd"+(e+1);
+		cell4.id = "5tpts"+(e+1);
+		tray5Name.push("5tname"+(e+1));
+		tray5Dd.push("5tdd"+(e+1));
+		tray5Pts.push("5tpts"+(e+1));
+		
+	}
+		while(e >= val){
+			table.deleteRow(a+b+c+d+e+5);
+			tray5Name.pop();
+			tray5Dd.pop();
+			tray5Pts.pop();
+			e--;
+		}
+    });
+});
+
+var counter6 = 1;
+
+$(function (){
+    $("#id_NOA6").on("change", function(){
+        var $ul = $(this).parent();
+        var val = $(this).val();
+		while($ul.find(".list6").length < val){        
+		var $item = $ul.find(".list6:last").clone();
+		ray6Nums.push(counter6);
+		counter6++;
+		$item.find(".6name").attr("id", "6name"+counter6);
+		$item.find(".6dd").attr("id", "6dd"+counter6); 
+		$item.find(".6pts").attr("id", "6pts"+counter6);
+		var $first = ("6name"+counter6);
+		var $second = ("6dd"+counter6); 
+		var $third = ("6pts"+counter6);
+		ray6Name.push($first);
+		ray6Dd.push($second); 
+		ray6Pts.push($third);          
+        $ul.append($item);
+		 }
+        if($ul.find(".list6").length > val){
+            $ul.find(".list6:gt("+(val-1)+")").remove();
+			ray6Nums.pop();
+			ray6Name.pop();
+			ray6Dd.pop(); 
+			ray6Pts.pop();
+            counter6 = val;
+        }
+      	while(f <= val){
+		f++;
+		
+    	var row = table.insertRow(a+b+c+d+e+f+6);
+		row.setAttribute("style", "background-color: #dddddd; font-size: 12pt; font-family: times new roman,times,serif;");
+    	var cell1 = row.insertCell(0);
+    	var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);		
+		var cell4 = row.insertCell(3);
+		cell4.setAttribute("style", "text-align: center;");
+		
+    	cell1.innerHTML = "&nbsp;&nbsp;";
+		cell2.id = "6tname"+(f+1);
+		cell3.id = "6tdd"+(f+1);
+		cell4.id = "6tpts"+(f+1);
+		tray6Name.push("6tname"+(f+1));
+		tray6Dd.push("6tdd"+(f+1));
+		tray6Pts.push("6tpts"+(f+1));
+		
+	}
+		while(f >= val){
+			table.deleteRow(a+b+c+d+e+f+6);
+			tray6Name.pop();
+			tray6Dd.pop();
+			tray6Pts.pop();
+			f--;
+		}
+    });
+});
+
+var counter7 = 1;
+
+$(function (){
+    $("#id_NOA7").on("change", function(){
+        var $ul = $(this).parent();
+        var val = $(this).val();
+		while($ul.find(".list7").length < val){        
+		var $item = $ul.find(".list7:last").clone();
+		ray7Nums.push(counter7);
+		counter7++;
+		$item.find(".7name").attr("id", "7name"+counter7);
+		$item.find(".7dd").attr("id", "7dd"+counter7); 
+		$item.find(".7pts").attr("id", "7pts"+counter7);
+		var $first = ("7name"+counter7);
+		var $second = ("7dd"+counter7); 
+		var $third = ("7pts"+counter7);
+		ray7Name.push($first);
+		ray7Dd.push($second); 
+		ray7Pts.push($third);         
+        $ul.append($item);
+		 }
+        if($ul.find(".list7").length > val){
+            $ul.find(".list7:gt("+(val-1)+")").remove();
+			ray7Nums.pop();
+			ray7Name.pop();
+			ray7Dd.pop(); 
+			ray7Pts.pop();
+            counter7 = val;
+        }
+      	while(g <= val){
+		g++;
+		
+    	var row = table.insertRow(a+b+c+d+e+f+g+7);
+		row.setAttribute("style", "background-color: #ffffff; font-size: 12pt; font-family: times new roman,times,serif;");
+    	var cell1 = row.insertCell(0);
+    	var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);		
+		var cell4 = row.insertCell(3);
+		cell4.setAttribute("style", "text-align: center;");
+		
+    	cell1.innerHTML = "&nbsp;&nbsp;";
+		cell2.id = "7tname"+(g+1);
+		cell3.id = "7tdd"+(g+1);
+		cell4.id = "7tpts"+(g+1);
+		tray7Name.push("7tname"+(g+1));
+		tray7Dd.push("7tdd"+(g+1));
+		tray7Pts.push("7tpts"+(g+1));
+		
+	}
+		while(g >= val){
+			table.deleteRow(a+b+c+d+e+f+g+7);
+			tray7Name.pop();
+			tray7Dd.pop();
+			tray7Pts.pop();
+			g--;
+		}
+    });
+});
+
+var counter8 = 1;
+
+$(function (){
+    $("#id_NOA8").on("change", function(){
+        var $ul = $(this).parent();
+        var val = $(this).val();
+		while($ul.find(".list8").length < val){        
+		var $item = $ul.find(".list8:last").clone();
+		ray8Nums.push(counter8);
+		counter8++;
+		$item.find(".8name").attr("id", "8name"+counter8);
+		$item.find(".8dd").attr("id", "8dd"+counter8); 
+		$item.find(".8pts").attr("id", "8pts"+counter8);
+		var $first = ("8name"+counter8);
+		var $second = ("8dd"+counter8); 
+		var $third = ("8pts"+counter8);
+		ray8Name.push($first);
+		ray8Dd.push($second); 
+		ray8Pts.push($third);                  
+        $ul.append($item);
+		 }
+        if($ul.find(".list8").length > val){
+            $ul.find(".list8:gt("+(val-1)+")").remove();
+			ray8Nums.pop();
+			ray8Name.pop();
+			ray8Dd.pop(); 
+			ray8Pts.pop();
+            counter8 = val;
+        }
+		while(h <= val){
+		h++;
+		
+    	var row = table.insertRow(a+b+c+d+e+f+g+h+8);
+		row.setAttribute("style", "background-color: #dddddd; font-size: 12pt; font-family: times new roman,times,serif;");
+    	var cell1 = row.insertCell(0);
+    	var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);		
+		var cell4 = row.insertCell(3);
+		cell4.setAttribute("style", "text-align: center;");
+		
+    	cell1.innerHTML = "&nbsp;&nbsp;";
+		cell2.id = "8tname"+(h+1);
+		cell3.id = "8tdd"+(h+1);
+		cell4.id = "8tpts"+(h+1);
+		tray8Name.push("8tname"+(h+1));
+		tray8Dd.push("8tdd"+(h+1));
+		tray8Pts.push("8tpts"+(h+1));
+		
+	}
+		while(h >= val){
+			table.deleteRow(a+b+c+d+e+f+g+h+8);
+			tray8Name.pop();
+			tray8Dd.pop();
+			tray8Pts.pop();
+			h--;
+		}
+      
+    });
+});
+
+<!--export functions-->
+
+   function copyToClipboard() {
+    window.prompt("Copy to clipboard: Ctrl+C, Enter", dtable.innerHTML);
+  }
+
+  			var sum1 = 0;
+			var sum2 = 0;
+			var sum3 = 0;
+			var sum4 = 0;
+			var sum5 = 0;
+			var sum6 = 0;
+			var sum7 = 0;
+			var sum8 = 0;
+  
+function xprt() {
+	  	  for(i = 0; i <= ray1Nums.length; i++) {
+		  document.getElementById(tray1Name[i]).innerHTML = document.getElementById(ray1Name[i]).value;
+		  document.getElementById(tray1Dd[i]).innerHTML = document.getElementById(ray1Dd[i]).value;
+		  document.getElementById(tray1Pts[i]).innerHTML = document.getElementById(ray1Pts[i]).value;
+	  };
+  	
+		  for(i = 0; i <= ray2Nums.length; i++) {
+		  document.getElementById(tray2Name[i]).innerHTML = document.getElementById(ray2Name[i]).value;
+		  document.getElementById(tray2Dd[i]).innerHTML = document.getElementById(ray2Dd[i]).value;
+		  document.getElementById(tray2Pts[i]).innerHTML =document.getElementById(ray2Pts[i]).value;
+	  };
+  	
+		  for(i = 0; i <= ray3Nums.length; i++) {
+		  document.getElementById(tray3Name[i]).innerHTML = document.getElementById(ray3Name[i]).value;
+		  document.getElementById(tray3Dd[i]).innerHTML = document.getElementById(ray3Dd[i]).value;
+		  document.getElementById(tray3Pts[i]).innerHTML = document.getElementById(ray3Pts[i]).value;
+	  };
+  	
+		  for(i = 0; i <= ray4Nums.length; i++) {
+		  document.getElementById(tray4Name[i]).innerHTML = document.getElementById(ray4Name[i]).value;
+		  document.getElementById(tray4Dd[i]).innerHTML = document.getElementById(ray4Dd[i]).value;
+		  document.getElementById(tray4Pts[i]).innerHTML = document.getElementById(ray4Pts[i]).value;
+	  };
+	  	  
+		  for(i = 0; i <= ray5Nums.length; i++) {
+		  document.getElementById(tray5Name[i]).innerHTML = document.getElementById(ray5Name[i]).value;
+		  document.getElementById(tray5Dd[i]).innerHTML = document.getElementById(ray5Dd[i]).value;
+		  document.getElementById(tray5Pts[i]).innerHTML = document.getElementById(ray5Pts[i]).value;
+	  };
+  	
+		  for(i = 0; i <= ray6Nums.length; i++) {
+		  document.getElementById(tray6Name[i]).innerHTML = document.getElementById(ray6Name[i]).value;
+		  document.getElementById(tray6Dd[i]).innerHTML = document.getElementById(ray6Dd[i]).value;
+		  document.getElementById(tray6Pts[i]).innerHTML =document.getElementById(ray6Pts[i]).value;
+	  };
+  	
+		  for(i = 0; i <= ray7Nums.length; i++) {
+		  document.getElementById(tray7Name[i]).innerHTML = document.getElementById(ray7Name[i]).value;
+		  document.getElementById(tray7Dd[i]).innerHTML = document.getElementById(ray7Dd[i]).value;
+		  document.getElementById(tray7Pts[i]).innerHTML = document.getElementById(ray7Pts[i]).value;
+	  };
+  	
+		  for(i = 0; i <= ray8Nums.length; i++) {
+		  document.getElementById(tray8Name[i]).innerHTML = document.getElementById(ray8Name[i]).value;
+		  document.getElementById(tray8Dd[i]).innerHTML = document.getElementById(ray8Dd[i]).value;
+		  document.getElementById(tray8Pts[i]).innerHTML = document.getElementById(ray8Pts[i]).value;
+	  };
+	  	
+
+			for (i = 0; i < ray1Pts.length; i++)
+			{
+			  sum1 = sum1 + (Number(document.getElementById(ray1Pts[i]).value));
+			};
+			
+			for (i = 0; i < ray2Pts.length; i++)
+			{
+			  sum2 = sum2 + (Number(document.getElementById(ray2Pts[i]).value));
+			};
+			
+			for (i = 0; i < ray3Pts.length; i++)
+			{
+			  sum3 = sum3 + (Number(document.getElementById(ray3Pts[i]).value));
+			};
+			
+			for (i = 0; i < ray4Pts.length; i++)
+			{
+			  sum4 = sum4 + (Number(document.getElementById(ray4Pts[i]).value));
+			};
+			for (i = 0; i < ray5Pts.length; i++)
+			{
+			  sum5 = sum5 + (Number(document.getElementById(ray5Pts[i]).value));
+			};
+			
+			for (i = 0; i < ray6Pts.length; i++)
+			{
+			  sum6 = sum6 + (Number(document.getElementById(ray6Pts[i]).value));
+			};
+			
+			for (i = 0; i < ray7Pts.length; i++)
+			{
+			  sum7 = sum7 + (Number(document.getElementById(ray7Pts[i]).value));
+			};
+			
+			for (i = 0; i < ray8Pts.length; i++)
+			{
+			  sum8 = sum8 + (Number(document.getElementById(ray8Pts[i]).value));
+			};
+
+			document.getElementById("tpoints").innerHTML = (Number(sum1) + Number(sum2) + Number(sum3) + Number(sum4) + Number(sum5) + Number(sum6) + Number(sum7) + Number(sum8));
+			
+			sum1 = 0;
+			sum2 = 0;
+			sum3 = 0;
+			sum4 = 0;
+			sum5 = 0;
+			sum6 = 0;
+			sum7 = 0;
+			sum8 = 0;
+  	}
+ 
+  </script>
+
+
+{% endblock %}

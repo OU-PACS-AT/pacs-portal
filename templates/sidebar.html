@@ -1,0 +1,41 @@
+{% load template_helpers %}
+
+<li class="{% if 'dashboard' in sidebar_group %}active{% endif %}">
+    <a href="{% url 'dashboard' %}">
+        <span class="glyphicon glyphicon-home" aria-hidden="true"></span> Dashboard
+    </a>
+</li>
+
+
+{% if request.user.is_authenticated %}
+		{% include 'resources_sidebar.html' %}
+		{% include 'ap_sidebar.html' %}
+        {% include 'profile_sidebar.html' %}
+
+    <li class="">
+            <div class="spacer"></div>
+            <div class="spacer"></div>
+    </li>
+
+    <li class="{% if 'logout' in sidebar_group %}active{% endif %}">
+        <a href="{% url 'logout' %}">
+            <i class="fa fa-sign-out fa-fw"></i> Logout
+        </a>
+    </li>
+{% else %}
+
+
+    <li class="{% if 'login' in sidebar_group %}active{% endif %}">
+        <a href="{% url 'login' %}">
+            <i class="glyphicon glyphicon-log-in" aria-hidden="true"></i> Login
+        </a>
+    </li>
+    <!-- <li class="{% if 'registration' in sidebar_group %}active{% endif %}">
+        <a href="{% url 'registration' %}">
+            <i class="glyphicon glyphicon-certificate" aria-hidden="true"></i> Register
+        </a>
+    </li>-->
+
+
+    
+{% endif %}

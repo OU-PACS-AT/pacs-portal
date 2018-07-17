@@ -1,0 +1,12 @@
+<li class="{% if 'ap' in sidebar_group %}active{% endif %}">
+    <a href="#" data-toggle="collapse" data-target="#ap_links" class="{% if 'profiles' in sidebar_group %}collapsed{% endif %}" aria-expanded="true">
+        <span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Academic Programs<span class="caret"></span>
+    </a>
+    <ul id="ap_links" class="sidebar-items collapse {% if 'ap' in sidebar_group %}in{% endif %}" aria-expanded="true">
+        <li class ="forarrow">{% include '_sidebar_item.html' with url='new_course_requests' label='New Course Requests'%}</li>
+        <li class ="looparrow">{% include '_sidebar_item.html' with url='revise_course_requests' label='Revise Course Requests'%}</li>
+        <li class ="bkarrow">{% include '_sidebar_item.html' with url='redevelop_course_requests' label='Re-develop Course Requests'%}</li>
+        <li class ="greybook">{% include '_sidebar_item.html' with url='textbook_change_requests' label='Textbook Change Requests'%}</li>
+        <li class ="button">{% include '_sidebar_item.html' with url='acceptance_declarations' label='Acceptance Declarations'%}</li>
+    </ul>
+</li>
