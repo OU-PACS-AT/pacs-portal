@@ -78,8 +78,7 @@ urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
                     # User Profiles
                     url(r'^profiles/', include("profiles.urls")),
                   
-                    # Apps
-                    url(r'^ap/', include("ap.urls")),
+                    # Apps 
                     url(r'', include("resources.urls")),
                     
               ]
