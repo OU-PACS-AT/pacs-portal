@@ -1,7 +1,7 @@
 {% extends "base.html" %}
  
 {% block page_title %}
-    Banner Maker
+    Save
 {% endblock page_title %}
 {% block page_headline %}
     <div class="col-xs-12"><h1 align="center">Change Dates</h1></div>
@@ -40,9 +40,6 @@ $(document).ready(function() {
     		<br> 
     		{% endif %}
             {% csrf_token %} 
-    	<input type="submit" value="Save Dates" name ="Save Dates Button">
-    	<input type="submit" value="Quit" name ="Quit"> 
-		<br>
     	<br> 
     		{{ table.management_form }}
             <table> 
@@ -67,6 +64,7 @@ $(document).ready(function() {
     		</table> 
     		<br>
     		<input type="submit" value="Save Dates" name ="Save Dates Button">
+    		<input type="submit" value="Quit" name ="Quit"> 
     	</form>
     	<br> <br> <br> 
 

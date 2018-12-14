@@ -12,6 +12,7 @@ from os.path import join
 from django.core.wsgi import get_wsgi_application
 
 
+
 PROJECT_DIR = '/home/pacs-portal_project'
 
 # Add the app's directory to the PYTHONPATH
@@ -31,3 +32,5 @@ execfile(activate_env, dict(__file__=activate_env))
 import django
 django.setup()
 application = django.core.handlers.wsgi.WSGIHandler()
+
+from nucleus import auth

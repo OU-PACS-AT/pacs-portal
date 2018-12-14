@@ -7,34 +7,17 @@
 </li>
 
 
-{% if request.user.is_authenticated %}
-		{% include 'resources_sidebar.html' %}
-        {% include 'profile_sidebar.html' %}
+		{% if server_type != "PROD" %}{% include 'apitools_sidebar.html' %}{% endif %}
+		{% if user_is_staff %}{% include 'staff_resources_sidebar.html' %}{% endif %}
+		{% include 'faculty_tools_sidebar.html' %}
+		{% include 'faculty_resources_sidebar.html' %}
+		
+		{% if user_is_admin %}{% include 'board_sidebar.html' %}{% endif %}
+		{% if user_is_admin %}{% include 'task_sidebar.html' %}{% endif %}
+		{% if user_is_admin %}{% include 'scaffold_sidebar.html' %}{% endif %}
 
     <li class="">
             <div class="spacer"></div>
             <div class="spacer"></div>
     </li>
-
-    <li class="{% if 'logout' in sidebar_group %}active{% endif %}">
-        <a href="{% url 'logout' %}">
-            <i class="fa fa-sign-out fa-fw"></i> Logout
-        </a>
-    </li>
-{% else %}
-
-
-    <li class="{% if 'login' in sidebar_group %}active{% endif %}">
-        <a href="{% url 'login' %}">
-            <i class="glyphicon glyphicon-log-in" aria-hidden="true"></i> Login
-        </a>
-    </li>
-    <!-- <li class="{% if 'registration' in sidebar_group %}active{% endif %}">
-        <a href="{% url 'registration' %}">
-            <i class="glyphicon glyphicon-certificate" aria-hidden="true"></i> Register
-        </a>
-    </li>-->
-
-
-    
-{% endif %}
+	<li><a href="https://pacs-help.outreach.ou.edu/" target="_new"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> Canvas Help</a></li>

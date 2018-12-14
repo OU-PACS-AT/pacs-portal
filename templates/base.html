@@ -13,14 +13,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <title>
-            CLS - {% block page_title %}{{ page_title }}{% endblock page_title %}
+            PACS - {% block page_title %}{{ page_title }}{% endblock page_title %}
         </title>
         {% include 'header.html' %}
-
-        <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}?time={% now "fyhims" %}"/>
-        <link rel="stylesheet" type="text/css" href="{% static 'css/cls.css' %}?time={% now "fyhims" %}"/>
-        <link rel="shortcut icon" href="{% static 'img/favicon.png' %}"/>
-
 
         {% block extra_header %}
             <link rel="stylesheet" type="text/css" href="{% static 'toolkit/toolkit.css' %}" />
@@ -54,15 +49,18 @@
             
                 <h3 class="navbar-title" ><img src="{% static 'img/ou-logo-white.png' %}"> College of Professional and Continuing Studies</h3>
 				
-				{% if user.is_authenticated %}
+				
 				<ul class="nav navbar-nav navbar-right">
 			        <li>
-			            <a href="#">
-			                <i class="fa fa-user fa-fw"></i> Hello, {{ user }}
+			            <a href="#" style="float:left;">
+			                <i class="fa fa-user fa-fw"></i> Hello, {{ user_full_name }} 
 			            </a>
+			            <a href="/simplesaml/module.php/core/as_logout.php?AuthId=default-sp&amp;ReturnTo=https%3A%2F%2Fsso.ou.edu/ext/logmeout" class="btn btn-lg" style="float:left; font-size:14px;">
+          					<span class="glyphicon glyphicon-log-out"></span> Log out
+        				</a>
 			        </li>
 				</ul>
-				{% endif %}
+				
 
                 <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
                 <div class="collapse navbar-collapse navbar-ex1-collapse">

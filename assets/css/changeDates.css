@@ -1,0 +1,25 @@
+.saved{
+	
+	background-color: #8aef8c;
+	padding:15px
+	
+}
+
+.error{
+	
+	background-color: #f66c6c;
+	padding:15px
+}
+
+ .content {
+    max-width: 1000px;
+    margin: auto;
+
+}
+
+.grey-text{
+   border: 0px #f9f9f9;
+   padding: 10px;
+   background-color: #f9f9f9
+}
+
