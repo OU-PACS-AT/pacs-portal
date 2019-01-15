@@ -33,8 +33,8 @@ urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
                     url(r'^apitools/', include("apitools.urls")),
                   
                     # Apps
-                    url(r'^p/', include("tasks.urls")),
-                    url(r'^b/', include("boards.urls")),
+                    #url(r'^p/', include("tasks.urls")),
+                    #url(r'^b/', include("boards.urls")),
                     url(r'^s/', include("scaffold.urls")),
                      
                     # Default 
