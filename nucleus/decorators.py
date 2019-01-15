@@ -1,5 +1,4 @@
 from django.core.exceptions import PermissionDenied
-
 from nucleus.auth import UserCredentials
 
 def is_staff(function):
@@ -61,3 +60,5 @@ def is_admin(function):
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
     return wrap
+
+

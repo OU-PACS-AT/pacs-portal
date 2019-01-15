@@ -18,8 +18,17 @@
 }
 
 .grey-text{
-   border: 0px #f9f9f9;
+   border: 1px #f9f9f9;
    padding: 10px;
    background-color: #f9f9f9
 }
 
+.inputA {
+    border: none;
+    background: transparent;
+}
+
+#inputA {
+    border: none;
+    background: transparent;
+}

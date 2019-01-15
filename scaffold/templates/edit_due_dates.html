@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+ 
+{% block page_title %}
+    Edit Due Dates
+{% endblock page_title %}
+{% block page_headline %}
+    <div class="col-xs-12"><h1 align="center">Edit Due Dates</h1></div>
+{% endblock page_headline %}
+
+
+{% block content %}
+
+
+{% load static %}
+
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel = "stylesheet"  type = "text/css" href ="{% static 'css/changeDates.css' %}" />
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+<script>
+$(document).ready(function() {
+    $('.datepicker').datepicker({
+    	  dateFormat: "mm-dd-yy"
+    });
+});
+</script>
+<title>Edit Due Dates</title>
+</head>
+<body >  
+   <div align="center" >  
+   <form method="POST">
+    	{% csrf_token %}
+    	{{ form.management_form }}
+		 <table class = "table table-striped table-condensed table-hover"> 
+            	<thead >
+            		<tr>
+            			<th>Assignment Name</th>
+            			<th>Start Date</th>
+            			<th>Due Date</th>
+            			<th>End Date</th>            		
+            		</tr>            	
+            	</thead>
+            	<tbody> 
+            	{% for t in form %}
+            		<tr>
+            			<td class = "inputA">{{ t.id }} {{ t.assignment_name }}</td>
+            			<td>{{ t.start_date }}</td>
+            			<td>{{ t.due_date }}</td>
+            			<td>{{ t.end_date }}</td> 
+            		</tr>           	
+            	{% endfor %}            	 
+            	</tbody>         
+    		</table> 
+    		<br>
+    		<input type="submit" value="Save Dates" name ="Save Dates Button">
+    		<input type="submit" value="Quit" name ="Quit"> 
+	</form>
+    </div> </body>
+</html>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+ 
+{% block page_title %}
+    Saved
+{% endblock page_title %}
+{% block page_headline %}
+    <div class="col-xs-12"><h1 align="center">Extend Dates</h1></div>
+{% endblock page_headline %}
+
+
+{% block content %}
+
+{% load static %}
+
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel = "stylesheet"  type = "text/css" href = "{% static 'css/changeDates.css' %}" />
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+<script>
+$(document).ready(function() {
+    $('.datepicker').datepicker();
+});
+</script>
+
+
+<title>Saved</title>
+</head>
+
+<body class = "content">   
+<div>
+   <form method="POST">
+   		{% csrf_token %} 
+   	 
+   		{% if saved %}
+        <h3 class = "saved">{{ saved }} </h3>
+        {% endif %}
+   		<h1> Goodbye </h1>
+   </form>
+    <br>
+    </div>  
+   
+</body>
+<script>
+
+</script>
+
+</html>
+{% endblock %}
