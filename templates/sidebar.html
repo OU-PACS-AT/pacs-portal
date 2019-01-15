@@ -7,14 +7,10 @@
 </li>
 
 
-		{% if server_type != "PROD" %}{% include 'apitools_sidebar.html' %}{% endif %}
 		{% if user_is_staff %}{% include 'staff_resources_sidebar.html' %}{% endif %}
 		{% include 'faculty_tools_sidebar.html' %}
 		{% include 'faculty_resources_sidebar.html' %}
 		
-		{% if user_is_admin %}{% include 'board_sidebar.html' %}{% endif %}
-		{% if user_is_admin %}{% include 'task_sidebar.html' %}{% endif %}
-		{% if user_is_admin %}{% include 'scaffold_sidebar.html' %}{% endif %}
 
     <li class="">
             <div class="spacer"></div>
