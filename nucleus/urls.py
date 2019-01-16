@@ -30,12 +30,14 @@ urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
                     url(r'^admin', include(admin.site.urls)),
                   
                     # API Tools
-                    url(r'^apitools/', include("apitools.urls")),
+                    #url(r'^apitools/', include("apitools.urls")),
+                  
+                    url(r'^ft/', include("faculty_tools.urls")),
                   
                     # Apps
                     #url(r'^p/', include("tasks.urls")),
                     #url(r'^b/', include("boards.urls")),
-                    url(r'^s/', include("scaffold.urls")),
+                    #url(r'^s/', include("scaffold.urls")),
                      
                     # Default 
                     url(r'', include("staff_resources.urls")),

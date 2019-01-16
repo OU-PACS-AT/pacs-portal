@@ -6,13 +6,12 @@
     </a>
 </li>
 
+		{% if user_is_staff or user_is_admin %}{% include 'staff_resources_sidebar.html' %}{% endif %}
+		{% if user_is_faculty or user_is_admin %}{% include 'faculty_tools_sidebar.html' %}{% endif %}
+		{% if user_is_faculty or user_is_admin %}{% include 'faculty_resources_sidebar.html' %}{% endif %}
 
-		{% if user_is_staff %}{% include 'staff_resources_sidebar.html' %}{% endif %}
-		{% include 'faculty_tools_sidebar.html' %}
-		{% include 'faculty_resources_sidebar.html' %}
-		
 
-    <li class="">
+    <li class=""> 
             <div class="spacer"></div>
             <div class="spacer"></div>
     </li>

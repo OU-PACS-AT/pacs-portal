@@ -3,8 +3,7 @@
         <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Faculty Tools<span class="caret"></span>
     </a>
     <ul id="faculty_tools_links" class="sidebar-items collapse {% if 'faculty_tools' in sidebar_group %}in{% endif %}" aria-expanded="true">
-        <li><a href="https://salsa.outreach.ou.edu/SALSA/new" target="_new"><i class="far fa-list-alt"></i>Salsa</a></li>
         <li><a href="https://syllabustracker.outreach.ou.edu/" target="_new"><i class="fas fa-crosshairs"></i>Syllabus Tracker</a></li>
-        <li><a href="https://syllabustracker.outreach.ou.edu/pp" target="_new"><i class="fas fa-crosshairs"></i>Syllabus Tracker (PP)</a></li>
+       <li>{% include '_sidebar_item.html' with url='course_lists' label='Change Dates' icon='fas fa-chalkboard-teacher'%}</li>
     </ul>
 </li>
