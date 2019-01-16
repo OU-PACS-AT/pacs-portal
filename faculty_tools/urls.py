@@ -23,7 +23,7 @@ urlpatterns = [
     #        name='student_lists'),])),    
     
     url(r'^(?P<course_id>\d+)/', include([
-        url(r'^edit/$', is_admin(changeDates.as_view()),
+        url(r'^edit/$', is_faculty(changeDates.as_view()),
             name='changeDates'),])),
     
     #url(r'^(?P<course_id>\d+)/', include([
@@ -55,7 +55,7 @@ urlpatterns = [
         
 
 
-    url(r'', is_admin(CourseListView.as_view()),
+    url(r'', is_faculty(CourseListView.as_view()),
         name='course_lists', ),
 
     ]

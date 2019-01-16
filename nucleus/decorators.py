@@ -5,7 +5,7 @@ def is_staff(function):
     
     def wrap(request, *args, **kwargs):
         creds = UserCredentials()
-        if creds.is_staff():
+        if creds.is_staff() or creds.is_admin():
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied
@@ -17,7 +17,7 @@ def is_faculty(function):
     
     def wrap(request, *args, **kwargs):
         creds = UserCredentials()
-        if creds.is_faculty():
+        if creds.is_faculty() or creds.is_admin():
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied
@@ -29,7 +29,7 @@ def is_student(function):
 
     def wrap(request, *args, **kwargs):
         creds = UserCredentials()
-        if creds.is_student():
+        if creds.is_student() or creds.is_admin():
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied
@@ -41,7 +41,7 @@ def is_faculty_or_staff(function):
 
     def wrap(request, *args, **kwargs):
         creds = UserCredentials()
-        if creds.is_faculty or creds.is_staff():
+        if creds.is_faculty or creds.is_staff() or creds.is_admin():
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied
