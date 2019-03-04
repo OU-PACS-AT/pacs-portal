@@ -21,26 +21,24 @@ from django.contrib import admin
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 
-#from tasks.views import TaskListView
-
 
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
               + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
               + [
                     url(r'^admin', include(admin.site.urls)),
                   
-                    # API Tools
-                    #url(r'^apitools/', include("apitools.urls")),
-                  
+                    # Faculty Tools                 
                     url(r'^ft/', include("faculty_tools.urls")),
                   
-                    # Apps
-                    #url(r'^p/', include("tasks.urls")),
-                    #url(r'^b/', include("boards.urls")),
-                    #url(r'^s/', include("scaffold.urls")),
+                    # Apps for development purposes only.
+                    #    Should be commented out before commited
+                    
+                    # Sample CCE-IT Toolkit apps
+                    url(r'^p/', include("tasks.urls")),
+                    url(r'^b/', include("boards.urls")),
+
                      
                     # Default 
                     url(r'', include("staff_resources.urls")),
-                    
               ]
 

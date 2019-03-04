@@ -6,6 +6,7 @@ class CurrentUserMixin(object):
     
     def get_context_data(self, **kwargs):
         auth = UserCredentials()
+        context = {}
         context =  super(CurrentUserMixin, self).get_context_data(**kwargs)
         context['user_full_name'] = auth.get_FirstName() + " " + auth.get_LastName()
         context['user_ounetid'] = auth.get_OUNetID()

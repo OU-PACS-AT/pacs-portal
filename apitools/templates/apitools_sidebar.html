@@ -1,9 +1,0 @@
-<li class="{% if 'apitools' in sidebar_group %}active{% endif %}">
-    <a href="#" data-toggle="collapse" data-target="#apitools_links" class="{% if 'apitools' in sidebar_group %}collapsed{% endif %}" aria-expanded="true">
-        <span class="glyphicon glyphicon-globe" aria-hidden="true"></span> API Tools<span class="caret"></span>
-    </a>
-    <ul id="apitools_links" class="sidebar-items collapse {% if 'apitools' in sidebar_group %}in{% endif %}" aria-expanded="true">
-       <li>{% include '_sidebar_item.html' with url='course_lists' label='Course List' icon='fas fa-chalkboard-teacher'%}</li>
-
-    </ul>
-</li>

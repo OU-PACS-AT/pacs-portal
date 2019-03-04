@@ -1,0 +1,86 @@
+th:not(:first-child), td:not(:first-child) {
+
+    text-align: left;
+}
+
+td {
+
+    vertical-align: top !important;
+}
+
+.atable {
+	
+	width: 70%;
+	float: left; 
+	padding: 3px; 
+}
+
+iframe {
+	
+	width: 30%; 
+	float: right; 
+	padding: 0px;
+	frameborder: 0;
+	scrolling: no;
+	
+}
+
+.general {
+	
+	background-color: #ffffff;	
+	
+}
+
+.curriculum {
+	
+	background-color: #ffffff;
+	
+} 
+
+.aviation {
+	
+	background-color: #aeaca7;
+	
+} 
+
+.leadership {
+	
+	background-color: #c99c9c;	
+	
+} 
+
+.criminal {
+	
+	background-color: #95a6bb;
+	
+} 
+
+.human {
+	
+	background-color: #a4bcce;
+	
+} 
+
+.integrative {
+	
+	background-color: #edcc9d;
+	
+} 
+
+.affiliated {
+	
+	background-color: #af95ad;
+	
+} 
+
+.english {
+	
+	background-color: #e9e6d9;
+	
+} 
+
+.lifelong {
+	
+	background-color: #9db1a1;
+	
+}

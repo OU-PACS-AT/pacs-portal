@@ -1,111 +1,112 @@
+# Django Imports
 from django import forms
-from django.forms import ModelForm
-from django.core.exceptions import ValidationError
+from django.forms import BaseFormSet
+from django.utils.translation import ugettext as _
+
+from datetime import datetime, timedelta, tzinfo, date, time
+
+# Toolkit base forms
+from toolkit.forms import CCESimpleSearchForm, CCEModelSearchForm, CCEModelForm
+
+# Models
+from models import Course, Assignment, Student
 
 import logging
 
-from datetime import date
-#from splitjson.widgets import SplitJSONWidget
-from .models import CanvasAssignment
-from .models import CanvasClass
-from .models import CanvasStudent
+class CourseSimpleSearch(CCESimpleSearchForm):
+    search_placeholder = 'Search Courses'
 
+    class Meta(CCESimpleSearchForm.Meta):
+        model = Course
+        field_lookups = {'search': ('id__icontains',
+                                    'name__icontains')}
+        
+class AssignmentSimpleSearch(CCESimpleSearchForm):
+    search_placeholder = 'Search Assignments'
 
-class GetClassNumber(forms.Form):
-    classNumber = forms.CharField(label = 'URL', widget=forms.TextInput(attrs={'placeholder': 'Paste URL here', 'size' : '50'}))
+    class Meta(CCESimpleSearchForm.Meta):
+        model = Assignment
+        field_lookups = {'search': ('id__icontains',
+                                    'name__icontains')}
+        
+class StudentSimpleSearch(CCESimpleSearchForm):
+    search_placeholder = 'Search Students'
+
+    class Meta(CCESimpleSearchForm.Meta):
+        model = Student
+        field_lookups = {'search': ('id__icontains',
+                                    'name__icontains')}
+        
+class AssignmentDatesForm(forms.ModelForm): 
     
-class SelectClass(forms.ModelForm):
     class Meta:
-        model = CanvasClass
+        model = Assignment
         fields = [
-        'class_name',
-        ]
-    class_name = forms.ModelChoiceField(queryset=CanvasClass.objects.all(),label = "Choose Class")
-	
-class TableForm(forms.ModelForm):
-    
-    class Meta:
-        model = CanvasAssignment
-        fields = [
-    	
-	    'assignment_name',
+        'name',
         'start_date',
         'due_date',
-        'end_date',
+        'end_date', 
+        'has_override',
+        'is_quiz',
         ]
-             
-        widgets = { 'assignment_name' :forms.TextInput(attrs={'readonly':'readonly', 'class' : 'inputA', 'size' : '25'}),
+
+        widgets = { 'name' :forms.TextInput(attrs={'readonly':'readonly', 'class' : 'grey-text', 'size' : '25'}),
                     'start_date' : forms.DateInput(format = '%m/%d/%Y', attrs ={ 'class' : 'datepicker'}),
                     'due_date' : forms.DateInput(format = '%m/%d/%Y', attrs ={ 'class' : 'datepicker' }),
                     'end_date' : forms.DateInput(format = '%m/%d/%Y', attrs ={ 'class' : 'datepicker' }),}
-        
-    class Media:
-        css = {'assignment_name': ('changeDates.css',)} 
-        
-        
-TableFormSet = forms.modelformset_factory(
-    model = CanvasAssignment,
-    form = TableForm,
-    extra = 0,
-    ) 
-        
-        
-class StudentForm(forms.ModelForm):
-    #checked = forms.BooleanField(required=False) 
     
-    class Meta:
-        model = CanvasStudent
-        fields = [        
-    #    'student_id',
-        'student_name',
-    #    'checked',
-        ]
+    def clean(self):
+        cleaned_data = super(AssignmentDatesForm, self).clean()
+        start_date = cleaned_data.get("start_date")
+        due_date = cleaned_data.get("due_date")
+        end_date = cleaned_data.get("end_date")
+        errors = []
+        if start_date > due_date:
+            logging.warning("ERROR: start_date > due_date")
+            errors += forms.ValidationError( 
+                _('Start Date: %(start_date)s must come before Due Date: %(due_date)s'),
+                params={'start_date': datetime.strftime(start_date, '%m/%d/%Y'),
+                        'due_date': datetime.strftime(end_date, '%m/%d/%Y'),},
+                )
+        if due_date > end_date:
+            logging.warning("ERROR: due_date > end_date")
+            errors += forms.ValidationError(
+                _('Due Date: %(due_date)s must come before End Date: %(end_date)s'),
+                params={'due_date': datetime.strftime(due_date, '%m/%d/%Y'),
+                        'end_date': datetime.strftime(end_date, '%m/%d/%Y'),},
+                )
+        if errors:
+            raise forms.ValidationError(errors)
+        return cleaned_data
+    
+    def has_changed(self):
+        result = False
         
-    student_name = forms.ModelChoiceField(queryset=CanvasStudent.objects.all(),label = "Choose Student")    
-    
-    
-class XAssignmentForm(forms.ModelForm): 
-    
-    class Meta:
-        model = CanvasAssignment
-        fields = [        
-        'assignment_name',
-        'due_date',
-        ]
-            
-    assignment_name = forms.ModelChoiceField(queryset=CanvasAssignment.objects.all(),label = "Choose Assignment")
-    
-
-class XTableForm(forms.ModelForm): 
-    
-    class Meta:
-        model = CanvasAssignment
-        fields = [        
-        'assignment_name',
-        'due_date',
-        ]
-             
-        widgets = { 'assignment_name' :forms.TextInput(attrs={'readonly':'readonly', 'class' : 'grey-text', 'size' : '25'}),                    
-                    'due_date' : forms.DateInput(format = '%m-%d-%Y', attrs ={ 'class' : 'datepicker' }),}
+        #logging.warning("Assignment name: " + str(self.fields['name']))
+        #logging.warning("Form has_changed")
+        #logging.warning(str(self))
+        #logging.warning("Changed data")
+        #logging.warning(str(self.changed_data))
         
-    class Media:
-        css = {'assignment_name': ('changeDates.css',)} 
+        if 'start_date' in self.changed_data:
+            result = True
+        if 'due_date' in self.changed_data:
+            result = True
+        if 'end_date' in self.changed_data:
+            result = True
             
         
-XTableFormSet = forms.modelformset_factory(
-    model = CanvasAssignment,
-    form = XTableForm,
-    extra = 0,
-    ) 
- 
+        
+        #if self.fields['start_date'].has_changed():
+        #    result = True
+        #if self.fields['due_date'].has_changed():
+        #    result = True
+        #if self.fields['end_date'].has_changed():
+        #    result = True
+            
+        return result
+        
+        
 
-class ConfirmForm(forms.Form):
-    pass
-
-class SavedForm(forms.Form):
-    pass
- 
-
-   
 
 

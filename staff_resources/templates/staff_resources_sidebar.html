@@ -3,6 +3,9 @@
         <span class="glyphicon glyphicon-briefcase" aria-hidden="true"></span> Staff Resources<span class="caret"></span>
     </a>
     <ul id="resource_links" class="sidebar-items collapse {% if 'staff_resources' in sidebar_group %}in{% endif %}" aria-expanded="true">
+    	<li>{% include '_sidebar_item.html' with url='outcome-generator' label='Learning Outcome Generator' icon='fas fa-tasks'%}</li>
+    	<li>{% include '_sidebar_item.html' with url='workload-estimator' label='Course Workload Estimator' icon='fas fa-tasks'%}</li>
+    	<li>{% include '_sidebar_item.html' with url='course_rotation' label='PACS Course Rotation' icon='fas fa-tasks'%}</li>
         <li>{% include '_sidebar_item.html' with url='crop_tool' label='Crop tool' icon='fas fa-crop'%}</li>
         <li>{% include '_sidebar_item.html' with url='button_maker' label='Button Maker' icon='fas fa-certificate' %}</li>
         <li>{% include '_sidebar_item.html' with url='banner_maker' label='Banner Maker' icon='fab fa-flipboard'%}</li>

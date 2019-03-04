@@ -1,95 +1,56 @@
+# Django imports
 from __future__ import unicode_literals
-
+from django.core.urlresolvers import reverse
 from django.db import models
-from django.forms import ModelForm
-from pickle import FALSE
 
-#from scaffold.models import PACSModel
+# Nucleus imports
+from nucleus.models import PACSModel
 
-# Create your models here.
-class PACSModel(models.Model):
-    """
-    Abstract model with fields for the user and timestamp of a row's creation
-    and last update.
-    .. note:: - 
-    """
-    from nucleus.auth import UserCredentials
+class Course(PACSModel):
+    course_id = models.IntegerField()
+    name = models.CharField(max_length = 100)
     
-    creds = UserCredentials()
-    
-    last_updated_by = models.CharField(max_length=8, default=creds.get_OUNetID())
-    last_updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.CharField(max_length=8, default=creds.get_OUNetID())
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        abstract = True
-    
-    @property
-    def tz_last_updated_at(self):
-        from django.utils.timezone import localtime
-        return localtime(self.last_updated_at)
-    
-    @property
-    def tz_created_at(self):
-        from django.utils.timezone import localtime
-        return localtime(self.created_at)
+    def __unicode__(self):
+        return u'{0}'.format(self.name)
 
-    def can_update(self, user_obj):
-        return True
-
-    def can_delete(self, user_obj):
-        return True
-
-    def can_create(self, user_obj):
-        return True
-
-    def can_view_list(self, user_obj):
-        return True
-
-    def can_view(self, user_obj):
-        return True
-
-
-
-class CanvasClass(PACSModel):
-    class_number = models.IntegerField(unique = False)
-    class_name = models.CharField(max_length = 100)
-    
     def get(self):
         return self.class_name
-    
-    def __unicode__(self):
-        return u'{0}'.format(self.class_name)
 
-
-class CanvasAssignment(PACSModel):
-    assignment_number = models.IntegerField(unique = False)
-    assignment_name = models.CharField(max_length = 100)
-    start_date = models.CharField(max_length = 10)
-    due_date = models.CharField(max_length = 10)
-    end_date = models.CharField(max_length = 10)
-    class_number = models.IntegerField(unique = False)
+    def get_absolute_url(self):
+        return reverse('course_list') + '?course=%s' % self.pk
     
+class Assignment(PACSModel):
+    course_id = models.IntegerField(unique = False)
+    assignment_id = models.IntegerField(unique = False)
+    name = models.CharField(max_length = 100, null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    has_override = models.BooleanField(default = False)
+    is_quiz = models.BooleanField(default = False)
     
     def _str_(self):
-        return self.assignment_number, self.assignment_name, self.start_date, self.due_date, self.end_date
-    
+        return self.assignment_id, self.name, self.start_date, self.due_date, self.end_date, self.has_override, self.is_quiz
+
     def __unicode__(self):
-        return u'{0}'.format(self.assignment_name)
-    
+        return u'{0}'.format(self.name)
+        
     def get(self):
-        return self.assignment_number
+        return self.assignment_id
     
-class CanvasStudent(PACSModel):
+class Student(PACSModel):
+    course_id = models.IntegerField(unique = False)
     student_id = models.IntegerField(unique = False)
-    student_name = models.CharField(max_length = 100)
-    checked = models.BooleanField(default = False)
-    class_number = models.IntegerField(unique = False)
-    
-    def __unicode__(self):
-        return u'{0}'.format(self.student_name)
+    name = models.CharField(max_length = 100, null=True, blank=True)
     
     def _str_(self):
-        return u'{0}'.format(self.student_name)
+        return self.student_id, name
 
+    def __unicode__(self):
+        return u'{0}'.format(self.name)
+        
+    def get(self):
+        return self.name
+    
+    
+    

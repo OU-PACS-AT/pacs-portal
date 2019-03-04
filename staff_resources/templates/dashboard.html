@@ -1,141 +1,155 @@
-{% extends "base.html" %}
+{% extends "list.html" %}
+{% load bootstrap_tags pagination %}
 
-{% block page_headline %}
- <div class="col-xs-12"><h1 align="center">PACS	AT {{ page_title }}</h1></div>
-{% endblock page_headline %}
+{% block action_buttons %}
+    {% if add_button_url %}
+        <a href="{{ add_button_url }}" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> Add</a>
+    {% endif %}
+{% endblock action_buttons %}
 
+{% block mobile_context_nav %}
+    {% block context_nav %}
+        {% include "generic_context_menu.html" %}
+    {% endblock context_nav %}
+{% endblock mobile_context_nav %}
 
-{% block content %}
-<div>
- 
+{% block table %}
+	{% load static %}
+	<link rel = "stylesheet"  type = "text/css" href = "{% static 'css/announcement.css' %}" />
 
-	<div class="dashboard_box">
-		<h2>Pre-Course Tools</h2>
-		
+    {% if page_details_top %}
+        <div class="row">
+            <div class="col-sm-12">
+                {% include page_details_top %}
+            </div>
+        </div>
+    {% endif %}
 
-		<div class="external_tool_box">
-			<a href="https://drive.google.com/open?id=0B_RxBaBMYxt8R19hY3dtaEpFTlE" target="_new">
-				<img src="static/img/check.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Checklist for Upcoming Term</p>
-		</div>        
-       	
-		<div class="external_tool_box">
-			<a href="https://drive.google.com/open?id=1bkaOMEhmxOR4AkYPOpWKF1_x6tm10bQ5niQ0ILQEWTM" target="_new">
-				<img src="static/img/sylabus.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Rubrics Template</p>
-		</div>    
-       	
-       	
-       	
-		<div class="external_tool_box">
-			<a href="https://docs.google.com/forms/d/1fYX4h-LEuKAIiPACfv6a-VSFy9EHwOWpHmBzKakpIsw/viewform" target="_new">
-				<img src="static/img/check.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Acceptance Declaration</p>
-		</div>     
+    {% block details %}
+    {% endblock details %}
 
-       		
+    {% if page_details %}
+        <div class="row">
+            <div class="col-sm-12">
+                {{ page_details|safe }}
+            </div>
+        </div>
+    {% endif %}
+    
+    
+    <div >
+    
+    <div class = "atable"  data-popover="popover_{{ forloop.parentloop.counter0 }}">
+    
+    {% for row in table %}
+        {% if forloop.first and forloop.last %} {# there's only a header row in the table #}
+            {% include 'alert.html' with type='warning' message=empty_list_message %}
+        {% else %}
+            {% if forloop.first %}
+                <div class="table-responsive">
+                <table class="table table-striped table-condensed table-hover">
+                    <thead >
+                        <tr >
+                            {% for title_tuple in row %}
+                                <th class="col-sm-{{ title_tuple.1 }}" >
+                                    {% generate_ordering_links request title_tuple.0 title_tuple.2 %}
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+            {% else %}
+            			<tr class = "{{ short_school }}"> {{ short_school }}
+            			
+            			{% for item in row %}
+                               {% if forloop.last and not disable_actions_column %}
+                                    <td class="action-buttons"              >
+                                        {# item is a list of button tuples #}
+                                        {% for t in item %}
+                                            {% if t.5 %}
+                                            {% include '_button_condensed.html' with btn_class=t.0  btn_url=t.1  icon=t.3  label=t.2 %}
+                                            {% else %}
+                                            {% include '_button.html' with btn_class=t.0  btn_url=t.1  icon=t.3  label=t.2 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% else %}
+                                    <td>{{ item|render_detail:None|safe|default:"--" }}</td>
+                                {% endif %} 
+                            {% endfor %} 
+                           
+                        </tr>
+                {% if forloop.last %}
+                    </tbody>
+                </table>
+                </div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    
+    </div>
+    
+    <div ><iframe src="https://calendar.google.com/calendar/embed?src=ouclsat%40gmail.com&ctz=America%2FChicago" ></iframe></div>
+    
+    </div>
+    
 
-         <div class="external_tool_box">
-			<a href="https://salsa.outreach.ou.edu/SALSA/new" target="_new">
-				<img src="static/img/sylabus.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Salsa</p>
-		</div>
+    {% for labels, data in quicklook.items %}
+        {% for data_row in data %}
+        <div class="quickLook" id="popover_{{ forloop.counter }}">
+            <div data-toggle="popover" data-placement="left" data-html="true" title='Quick Look' data-content='
+                <div class="media">
+                    <div class="media-body">
+                        {% for label in labels %}
+                            {% for data_item in data_row %}
+                                {% if forloop.counter == forloop.parentloop.counter %}
+                                    {% include 'detail_row.html' with label=label value=data_item %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                '>
+            </div>
+        </div>
+        {% endfor %}
+    {% endfor %}
 
-		
-		
-		<div class="external_tool_box">
-			<a href="https://sites.google.com/view/ou-pacs-faculty/home" target="_new">
-				<img src="static/img/book.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Faculty Guides & Procedures</p>
-		</div>
-		
-		<div class="external_tool_box">
-			<a href="https://sites.google.com/view/oer-pacs/home" target="_new">
-				<img src="static/img/book.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Open Educational Resources</p>
-		</div>
-        
-        
-        <div class="external_tool_box">
-			<a href="https://datausa.io/" target="_new">
-				<img src="static/img/laptop-23.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>US Ed IPEDS</p>
-		</div>
-		
-	</div>
+    {% if page_details_bottom %}
+        <div class="row">
+            <div class="col-sm-12">
+                {% include page_details_bottom %}
+            </div>
+        </div>
+    {% endif %}
 
+{% endblock table %}
 
+{% block extra_header %}
+    {{ block.super }}
+    <style>
+        .quickLook {
+            position: absolute;
+            display: none;
+        }
 
-	<div class="dashboard_box">
-		<h2>Course Tools</h2>
+        .popover {
+            width: 500px;
+            max-width: 500px;
+        }
 
-		<div class="external_tool_box">
-			<a href="https://calendar.google.com/calendar/embed?src=ouclsat%40gmail.com&ctz=America/Chicago" target="_new">
-				<img src="static/img/check.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>PACS Calendar</p>
-		</div>
+        .popover > .arrow {
+            display: none;
+        }
+    </style>
+{% endblock extra_header %}
 
-		<div class="external_tool_box">
-			<a href="https://pacs-help.outreach.ou.edu/" target="_new">
-				<img src="static/img/help-2.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Report a problem with Canvas</p>
-		</div>
-        
-
-        <div class="external_tool_box">
-			<a href="https://syllabustracker.outreach.ou.edu/" target="_new">
-				<img src="static/img/sylabusTrak.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Syllabus Tracker</p>
-		</div>
-
-		
-
-        <div class="external_tool_box">
-			<a href="https://syllabustracker.outreach.ou.edu/pp" target="_new">
-				<img src="static/img/sylabusTrak.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Syllabus Tracker (PP)</p>
-		</div>
-
-
-	</div>
-
-<!-- 
-	<div class="dashboard_box">
-		<h2>Post Course Tools</h2>
-
-		<div class="external_tool_box">
-			<a href="https://docs.google.com/forms/d/1bFvR9WvNbj8opAHq2U-1Ku15GZsJIJkkcyFDPM2YknM/edit" target="_new">
-				<img src="static/img/incomplete.png" alt="" class="icon">
-			</a>
-			<br>
-			<p>Incomplete for student</p>
-		</div>
-
-	</div>
- -->
-
-
-</div>
-{% endblock %}
+{% block extra_footer %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            quickLook(".action-buttons", -450, 5);
+        });
+    </script>
+{% endblock extra_footer %}

@@ -12,16 +12,98 @@ from django.views.generic import TemplateView
 import requests, os, logging
 
 # Toolkit imports
-from toolkit.views import  CCETemplateView 
+from toolkit.views import  CCETemplateView, CCECreateView, CCECreateWithInlinesView, CCEDeleteView, CCEDetailView, \
+    CCEFormView, CCEListView, CCEModelFormSetView, CCEObjectRedirectView, CCERedirectView, \
+    CCESearchView, CCETemplateView, CCEUpdateView,  CCEUpdateWithInlinesView, \
+    ReportDownloadDetailView, ReportDownloadSearchView
 
 # User Credentials retrieval/mixins
+from nucleus.auth import UserCredentials
 from nucleus.mixins import CurrentUserMixin
+from forms import AnnouncementSimpleSearch, AnnouncementForm
+from models import Announcement
 
-class DashboardView(CurrentUserMixin, CCETemplateView):
+
+class AnnouncementSearchView(CCESearchView):
+    def __init__(self, *args, **kwargs):
+        super(AnnouncementSearchView, self).__init__(*args, **kwargs)
+        from nucleus.auth import UserCredentials
+        creds = UserCredentials()
+        self.model.objects.filter(created_by = creds.get_OUNetID()).delete()
+
+class DashboardView(CurrentUserMixin, CCESearchView):
     sidebar_group = ['dashboard', ]
     template_name = 'dashboard.html'
-    page_title = "Dashboard"
- 
+    page_title = "Announcements"
+    search_form_class = AnnouncementSimpleSearch
+    success_message = "success"
+    model = Announcement
+    show_context_menu = True
+    columns = [
+        ('Title', 'name'),
+        ('Body', 'body'),
+        ('Author', 'author'),
+        ('Date', 'last_updated_at'),
+        ('School', 'school'), 
+        #('short', 'short_school') ,       
+    ]
+    
+    def get(self, request, *args, **kwargs):
+        creds = UserCredentials()
+        
+        return super(DashboardView, self).get(request, *args, **kwargs)
+        
+    def get_queryset(self):
+        return super(DashboardView, self).get_queryset()\
+            .all().order_by('-last_updated_at' , 'name')
+            
+            
+class AnounceCreateView(CurrentUserMixin, CCECreateView):
+    model = Announcement
+    form_class = AnnouncementForm
+    page_title = "Add Announcement!"
+    sidebar_group = ['dashboard', ]
+    success_message = "Announcement Created Successfully"
+    creds = UserCredentials()
+    
+    def get_success_url(self):
+        return reverse('dashboard')
+    
+class AnounceUpdateView(CurrentUserMixin, CCEUpdateView):
+    model = Announcement
+    form_class = AnnouncementForm
+    page_title = 'Edit Announcement'
+    sidebar_group = ['dashboard', ]    
+    success_message = "Announcement Edited Successfully"
+    
+    def get_success_url(self):
+        return reverse('dashboard')
+
+
+class AnounceDeleteView(CurrentUserMixin, CCEDeleteView):
+    model = Announcement    
+    page_title = 'Delete Announcement'    
+    sidebar_group = ['dashboard', ]
+    success_message = "Announcement Deleted Successfully"
+
+    def get_success_url(self):
+        return reverse('dashboard')
+    
+class PACSCourseRotation(CurrentUserMixin,CCETemplateView):
+    sidebar_group = ['staff_resources', 'course_rotation']
+    template_name = 'course_rotation.html'
+    page_title = 'PACS Course Rotation'    
+    
+class CourseWorkloadEstimator(CurrentUserMixin,CCETemplateView):
+    sidebar_group = ['staff_resources', 'workload-estimator']
+    template_name = 'workload-estimator.html'
+    page_title = 'Course Workload Estimator'     
+    
+class LearningOutcomeGenerator(CurrentUserMixin,CCETemplateView):
+    sidebar_group = ['staff_resources', 'outcome-generator']
+    template_name = 'outcome-generator.html'
+    page_title = 'Learning Outcome Generator'     
+    
 class CropTool(CurrentUserMixin,CCETemplateView):
     sidebar_group = ['staff_resources', 'crop_tool']
     template_name = 'crop_tool.html'
