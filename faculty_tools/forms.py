@@ -61,20 +61,29 @@ class AssignmentDatesForm(forms.ModelForm):
         due_date = cleaned_data.get("due_date")
         end_date = cleaned_data.get("end_date")
         errors = []
-        if start_date > due_date:
-            logging.warning("ERROR: start_date > due_date")
+        date_not_blank = False
+        if start_date or due_date or end_date:
+            date_not_blank = True  
+        
+        if date_not_blank and (start_date == None or due_date == None or end_date == None):
             errors += forms.ValidationError( 
-                _('Start Date: %(start_date)s must come before Due Date: %(due_date)s'),
-                params={'start_date': datetime.strftime(start_date, '%m/%d/%Y'),
-                        'due_date': datetime.strftime(end_date, '%m/%d/%Y'),},
-                )
-        if due_date > end_date:
-            logging.warning("ERROR: due_date > end_date")
-            errors += forms.ValidationError(
-                _('Due Date: %(due_date)s must come before End Date: %(end_date)s'),
-                params={'due_date': datetime.strftime(due_date, '%m/%d/%Y'),
-                        'end_date': datetime.strftime(end_date, '%m/%d/%Y'),},
-                )
+                _('All dates must have values or be empty. Cannot change one without others.'),
+            )
+        else:
+            if start_date > due_date:
+                logging.warning("ERROR: start_date > due_date")
+                errors += forms.ValidationError( 
+                    _('Start Date: %(start_date)s must come before Due Date: %(due_date)s'),
+                    params={'start_date': datetime.strftime(start_date, '%m/%d/%Y'),
+                            'due_date': datetime.strftime(end_date, '%m/%d/%Y'),},
+                    )
+            if due_date > end_date:
+                logging.warning("ERROR: due_date > end_date")
+                errors += forms.ValidationError(
+                    _('Due Date: %(due_date)s must come before End Date: %(end_date)s'),
+                    params={'due_date': datetime.strftime(due_date, '%m/%d/%Y'),
+                            'end_date': datetime.strftime(end_date, '%m/%d/%Y'),},
+                    )
         if errors:
             raise forms.ValidationError(errors)
         return cleaned_data
@@ -82,27 +91,12 @@ class AssignmentDatesForm(forms.ModelForm):
     def has_changed(self):
         result = False
         
-        #logging.warning("Assignment name: " + str(self.fields['name']))
-        #logging.warning("Form has_changed")
-        #logging.warning(str(self))
-        #logging.warning("Changed data")
-        #logging.warning(str(self.changed_data))
-        
         if 'start_date' in self.changed_data:
             result = True
         if 'due_date' in self.changed_data:
             result = True
         if 'end_date' in self.changed_data:
             result = True
-            
-        
-        
-        #if self.fields['start_date'].has_changed():
-        #    result = True
-        #if self.fields['due_date'].has_changed():
-        #    result = True
-        #if self.fields['end_date'].has_changed():
-        #    result = True
             
         return result
         
