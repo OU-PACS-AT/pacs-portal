@@ -9,6 +9,7 @@ import pytz
 # Nucleus imports
 from nucleus.auth import UserCredentials
 
+
 class Schools(models.Model):
     name = models.CharField(max_length=50)
     
@@ -18,7 +19,7 @@ class Announcement(PACSModel):
     author = models.CharField(max_length=50)    
     #School = models.ForeignKey('Schools', on_delete=models.CASCADE,)
     General = 'General'
-    Academic_Curriculum_and_Policies_Council = 'Academic Curriculum and Policies Council'
+    #Academic_Curriculum_and_Policies_Council = 'Academic Curriculum and Policies Council'
     Aviation_Studies = 'Aviation Studies'
     Leadership_Studies = 'Leadership Studies'
     Criminal_Justice_Studies = 'Criminal Justice Studies'
@@ -31,7 +32,7 @@ class Announcement(PACSModel):
     School_Choices = (
         
         (General , 'General'),
-        (Academic_Curriculum_and_Policies_Council, 'Academic Curriculum and Policies Council'),
+        #(Academic_Curriculum_and_Policies_Council, 'Academic Curriculum and Policies Council'),
         (Aviation_Studies , 'Aviation Studies'),
         (Leadership_Studies , 'Leadership Studies'),
         (Criminal_Justice_Studies , 'Criminal Justice Studies'),
@@ -44,14 +45,14 @@ class Announcement(PACSModel):
         )
     
     school = models.CharField(max_length=50, choices = School_Choices, default = General,)
-    short_school = models.CharField(max_length=15, null = True)
+    short_school = models.CharField(max_length=15, null = True, editable=False,)
     
     def fillshort(self):
         short = ''        
         if self.school == 'General':
              short = 'general' 
-        if self.school == 'Academic Curriculum and Policies Council':
-             short = 'curriculum' 
+        #if self.school == 'Academic Curriculum and Policies Council':
+        #     short = 'curriculum' 
         if self.school == 'Aviation Studies':
              short = 'aviation' 
         if self.school == 'Leadership Studies':

@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect, HttpResponse, HttpRequest
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.conf import settings
+
 from canvasapi import Canvas
 from django.views.generic import TemplateView
 import requests, os, logging
@@ -36,17 +37,21 @@ class DashboardView(CurrentUserMixin, CCESearchView):
     template_name = 'dashboard.html'
     page_title = "Announcements"
     search_form_class = AnnouncementSimpleSearch
+   
     success_message = "success"
     model = Announcement
     show_context_menu = True
+    paginate_by = 10
+    
     columns = [
         ('Title', 'name'),
         ('Body', 'body'),
         ('Author', 'author'),
         ('Date', 'last_updated_at'),
         ('School', 'school'), 
-        #('short', 'short_school') ,       
+        ('Actions', 'short_school') ,       
     ]
+    
     
     def get(self, request, *args, **kwargs):
         creds = UserCredentials()

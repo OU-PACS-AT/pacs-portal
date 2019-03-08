@@ -5,9 +5,10 @@ from models import Announcement
 
 class AnnouncementSimpleSearch(CCESimpleSearchForm):
     search_placeholder = 'Search Announcements'
-
+    
     class Meta(CCESimpleSearchForm.Meta):
         model = Announcement
+        
         field_lookups = {'search': ('name__icontains',
                                     'body__icontains',
                                     'school__icontains')}

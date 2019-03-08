@@ -28,59 +28,71 @@ iframe {
 .general {
 	
 	background-color: #ffffff;	
-	
+		
 }
 
 .curriculum {
 	
 	background-color: #ffffff;
-	
+		
 } 
 
 .aviation {
 	
 	background-color: #aeaca7;
-	
+		
 } 
 
 .leadership {
 	
 	background-color: #c99c9c;	
-	
+		
 } 
 
 .criminal {
 	
 	background-color: #95a6bb;
-	
+		
 } 
 
 .human {
 	
 	background-color: #a4bcce;
-	
+		
 } 
 
 .integrative {
 	
 	background-color: #edcc9d;
-	
+		
 } 
 
 .affiliated {
 	
 	background-color: #af95ad;
-	
+		
 } 
 
 .english {
 	
 	background-color: #e9e6d9;
-	
+		
 } 
 
 .lifelong {
 	
 	background-color: #9db1a1;
+		
+}
+
+td:nth-child(6){
+	
+	display: none;
+	
+}
+
+.col-sm-1{
+
+	display: none !important;
 	
 }
