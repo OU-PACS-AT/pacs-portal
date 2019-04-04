@@ -430,7 +430,10 @@ iframe {
 	visibility: visible;
 }
 
-
+.late_icon {
+	color: #b5b038;
+	font-size: 25px;
+}
 
 /*CARY TESTS*/
 

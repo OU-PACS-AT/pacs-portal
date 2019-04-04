@@ -29,13 +29,16 @@ urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
                   
                     # Faculty Tools                 
                     url(r'^ft/', include("faculty_tools.urls")),
+
+                    # Canvas Lists
+                    url(r'^c/', include("canvas.urls")),
                   
                     # Apps for development purposes only.
                     #    Should be commented out before commited
                     
                     # Sample CCE-IT Toolkit apps
-                    #url(r'^p/', include("tasks.urls")),
-                    #url(r'^b/', include("boards.urls")),
+                    url(r'^p/', include("tasks.urls")),
+                    url(r'^b/', include("boards.urls")),
 
                      
                     # Default 

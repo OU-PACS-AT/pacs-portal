@@ -3,6 +3,7 @@
         <span class="glyphicon glyphicon-briefcase" aria-hidden="true"></span> Staff Resources<span class="caret"></span>
     </a>
     <ul id="resource_links" class="sidebar-items collapse {% if 'staff_resources' in sidebar_group %}in{% endif %}" aria-expanded="true">
+    	<li>{% include '_sidebar_item.html' with url='new-course-trello' label='Trello Boards' icon='fas fa-tasks'%}</li>
     	<li>{% include '_sidebar_item.html' with url='outcome-generator' label='Learning Outcome Generator' icon='fas fa-tasks'%}</li>
     	<li>{% include '_sidebar_item.html' with url='workload-estimator' label='Course Workload Estimator' icon='fas fa-tasks'%}</li>
     	<li>{% include '_sidebar_item.html' with url='course_rotation' label='PACS Course Rotation' icon='fas fa-tasks'%}</li>
@@ -11,6 +12,5 @@
         <li>{% include '_sidebar_item.html' with url='banner_maker' label='Banner Maker' icon='fab fa-flipboard'%}</li>
         <li>{% include '_sidebar_item.html' with url='objective_builder' label='Objective Builder' icon='fas fa-chart-line'%}</li>
         <li><a href="https://salsa.outreach.ou.edu/SALSA/new" target="_new"><i class="far fa-list-alt"></i>Salsa</a></li>
-        <li><a href="https://syllabustracker.outreach.ou.edu/pp" target="_new"><i class="fas fa-crosshairs"></i>Syllabus Tracker (PP)</a></li>
     </ul>
 </li>

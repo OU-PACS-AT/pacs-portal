@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+ 
+{% block page_title %}
+    Trello Boards
+{% endblock page_title %}
+{% block page_headline %}
+    <div class="col-xs-12"><h1 align="center">{{ page_title }}</h1></div>
+{% endblock page_headline %}
+{% load static %}
+{% block content %}
+
+<link rel = "stylesheet"  type = "text/css" href = "{% static 'css/trello.css' %}" />
+	
+<div class = "screen1">
+	<a href="https://trello.com/b/cOiu1EIs/new-course-development" target="_new" >
+		<img src="static/img/nc.png" alt="New Course" style="display:block;">
+  		<span>New Course</span>
+	</a>
+</div>
+<div class = "screen1">
+	<a href="https://trello.com/b/TFPOEEOB/revise-course-development" target="_new">
+		<img src="static/img/rc.png" alt="Revise Course" style="display:block;">
+		<span>Revise Course</span>
+	</a>
+</div>
+
+{% endblock %}

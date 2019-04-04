@@ -1,4 +1,4 @@
-__author__ = 'Will Poillion'
+__author__ = 'Will Poillion & Cary Stringfield'
 
 import itertools
 import requests
@@ -20,14 +20,26 @@ class GroupSetBuilder():
 
 class CanvasAPI():
     
-    def __init__(self):
+    def __init__(self, sub_account = None, term = None, debug = None):
         """Construct an object to access the Canvas API. """
         self.access_token = settings.CANVAS_TOKEN
         self.api_url = settings.CANVAS_URL + settings.CANVAS_API_PREFIX
-        self.DEBUG = settings.DEBUG
-        #self.DEBUG = False
-        self.SUB_ACCOUNT = settings.TEST_SUBACCOUNT
-        self.TERM = settings.CURRENT_TERM
+        
+        if debug is not None:
+            self.DEBUG = debug
+        else:
+            self.DEBUG = settings.DEBUG
+        self.DEBUG = False
+        
+        if sub_account is not None:
+            self.SUB_ACCOUNT = sub_account
+        else:
+            self.SUB_ACCOUNT = settings.TEST_SUBACCOUNT
+            
+        if term is not None:
+            self.TERM = term
+        else:
+            self.TERM = settings.CURRENT_TERM
 
 
     def put(self, api_url, payload=None):
@@ -175,12 +187,18 @@ class CanvasAPI():
 
     def get_assignment(self, course_id, assignment_id):
         return self.get('/courses/%s/assignments/%s' % (course_id, assignment_id), single=True)    
+    
+    def get_submissions(self, course_id):
+        return self.get('/courses/%s/students/submissions?student_ids[]=all' % (course_id))   
 
     def get_assignments(self, course_id):
         return self.get('/courses/%s/assignments' % course_id)
     
     def get_students(self, course_id):
         return self.get('/courses/%s/students' % course_id)
+
+    def get_account_users(self):
+        return self.get('/accounts/%s/users' % self.SUB_ACCOUNT)
 
     def get_course_enrollments(self, course_id):
         return self.get('/courses/%s/enrollments' % course_id)
@@ -225,13 +243,21 @@ class CanvasAPI():
     def update_assignment_override(self, course_id, assignment_id, student_id, due_date, start_date, end_date):
         override = self.get_assignment_override(course_id, assignment_id, student_id)
         url = "/courses/" + str(course_id) + "/assignments/" + str(assignment_id) + "/overrides/" + str(override['id'])
-        
         payload = {'assignment_override[due_at]': due_date, 'assignment_override[unlock_at]': start_date, 'assignment_override[lock_at]': end_date}
-        
         return self.put(url, payload)
 
+    def get_subaccounts(self, account_id = None):
+        if account_id is None:
+            account_id = self.SUB_ACCOUNT
+        sub_accounts = self.get('/accounts/%s/sub_accounts?recursive=true' % account_id)
+        return sub_accounts
 
-
+    def get_courses_by_term(self, term = None, account = None):
+        if term is None:
+            term = self.TERM
+        if account is None:
+            account = self.SUB_ACCOUNT
+        return self.get('/accounts/%s/courses?enrollment_term_id=%s' % (account, term))
 
 
 

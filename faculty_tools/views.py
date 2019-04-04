@@ -19,9 +19,9 @@ import logging
 import requests
 
 # Form imports
-from faculty_tools.forms import CourseSimpleSearch, AssignmentDatesForm, AssignmentSimpleSearch, StudentSimpleSearch
-from faculty_tools.models import Course, Assignment, Student
-
+from faculty_tools.forms import CourseSimpleSearch, AssignmentDatesForm, AssignmentSimpleSearch, StudentSimpleSearch, SubmissionsSimpleSearch
+from faculty_tools.models import Course, Assignment, Student, Submissions
+from canvas.models import Course as CanvasCourse, Assignment as CanvasAssignment, Student as CanvasStudent
 
 class CourseListView(CurrentUserMixin, CCESearchView):
     model = Course
@@ -59,7 +59,7 @@ class CourseListView(CurrentUserMixin, CCESearchView):
             self.render_button(btn_class='btn-warning btn-inline',
                                button_text='Edit Assignment Dates',
                                icon_classes='glyphicon glyphicon-edit',
-                               url=reverse('course_list') + str(obj.course_id) + "/edit/",
+                               url= str(obj.course_id) + "/edit/",
                                label="Edit Assignment Dates",
                                condensed=False,),
         )
@@ -68,8 +68,17 @@ class CourseListView(CurrentUserMixin, CCESearchView):
             self.render_button(btn_class='btn-warning btn-inline',
                                button_text='Extend Due Dates',
                                icon_classes='glyphicon glyphicon-paste',
-                               url=reverse('course_list') + str(obj.course_id) + "/extend/",
+                               url= str(obj.course_id) + "/extend/",
                                label="Extend Due Dates",
+                               condensed=False,)
+        )
+        
+        buttons.append(
+            self.render_button(btn_class='btn-warning btn-inline',
+                               button_text='View Submissions',
+                               icon_classes='glyphicon glyphicon-paste',
+                               url= str(obj.course_id) + "/submissions/",
+                               label="View Submissions",
                                condensed=False,)
         )
         
@@ -77,6 +86,7 @@ class CourseListView(CurrentUserMixin, CCESearchView):
 
 
 class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
+    #logging.warning("******************************************EditDueDates*************************************")
     model = Assignment
     page_title = 'Edit Due Dates'
     success_message = "Dates updated successfully!"
@@ -277,6 +287,7 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
     
     
 class AssignmentListView(CurrentUserMixin, CCESearchView):
+    #logging.warning("******************************************AssignmentListView*************************************")
     model = Assignment
     page_title = 'Assignment List'
     search_form_class = AssignmentSimpleSearch
@@ -296,7 +307,7 @@ class AssignmentListView(CurrentUserMixin, CCESearchView):
 
         json_data = api.get_assignments(course_id)
         json_list = list(json_data) #the data from canvas
-
+        
         for assignment in json_list:   #get the stuff i need from the canvas data
             logging.warning("AssignmentListView")
             logging.warning(str(assignment))             
@@ -376,6 +387,72 @@ class StudentListView(CurrentUserMixin, CCESearchView):
 
         )
         return buttons
+    
+class SubmissionsListView(CurrentUserMixin, CCESearchView):
+    model = Submissions
+    page_title = 'Submissions List'
+    search_form_class = StudentSimpleSearch
+    success_message = "success"
+    template_name = 'submissions_template.html'
+    sidebar_group = ['faculty_tools', 'canvas_course_list']
+    columns = [
+        ('Student', 'student'),
+        ('Assignment', 'assignment'),
+        ('Submitted', 'submitted'),
+        ('Late', 'late'),
+    ]
+    show_context_menu = False
+    
+    def get(self, request, *args, **kwargs):
+        self.model.user_objects.all().delete()
+        api = CanvasAPI()
+        course_id = self.kwargs['course_id']
+        
+        json_data = api.get_submissions(course_id)
+        json_list = list(json_data) #the data from canvas
+        
+        for sub in json_list:
+            student_id = sub['user_id']
+            student = CanvasStudent.objects.filter(canvas_id = student_id).first()
+            
+            assignment_id = sub['assignment_id']
+            assignment = CanvasAssignment.objects.filter(assignment_id = assignment_id).first()
+            
+            submitted = False
+            if sub['workflow_state'] != 'unsubmitted':
+                submitted = True
+            late = sub['late']
+            Submissions.user_objects.create(student = student, assignment = assignment, submitted = submitted, late = late)
+        
+        return super(SubmissionsListView, self).get(request, *args, **kwargs)
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super(SubmissionsListView, self).get_context_data(*args, **kwargs) 
+        course_id = int(self.kwargs['course_id'])
+        
+        assignment_list = CanvasAssignment.objects.filter(course__course_id = course_id).all().order_by('name').values()
+        student_list = CanvasStudent.objects.filter(studentcourse__course__course_id = course_id).all().order_by('sortable_name').values()
+        
+        submissions = []
+        for student in student_list:
+            temp = {}
+            temp['student'] = student
+            temp['assignments'] = []
+            for assignment in assignment_list:
+                temp2 = list(Submissions.user_objects.filter(student__canvas_id = student['canvas_id'], assignment__assignment_id = assignment['assignment_id']).values())
+                if temp2:
+                    temp['assignments'].append(temp2.pop())
+                else:
+                    temp['assignments'].append({})
+            submissions.append(temp)
+        
+        context['assignments'] = assignment_list
+        context['submissions'] = submissions
+        
+        return context
+    
+    def get_queryset(self):
+        return self.model.user_objects.all().order_by('student_id' , 'assignment_id')
     
     
     

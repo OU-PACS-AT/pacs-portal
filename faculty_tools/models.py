@@ -5,20 +5,19 @@ from django.db import models
 
 # Nucleus imports
 from nucleus.models import PACSModel
+from canvas.models import Student as CanvasStudent, Assignment as CanvasAssignment
 
 class Course(PACSModel):
     course_id = models.IntegerField()
     name = models.CharField(max_length = 100)
     
+
     def __unicode__(self):
         return u'{0}'.format(self.name)
 
     def get(self):
         return self.class_name
 
-    def get_absolute_url(self):
-        return reverse('course_list') + '?course=%s' % self.pk
-    
 class Assignment(PACSModel):
     course_id = models.IntegerField(unique = False)
     assignment_id = models.IntegerField(unique = False)
@@ -52,5 +51,19 @@ class Student(PACSModel):
     def get(self):
         return self.name
     
+class Submissions(PACSModel):
+    student = models.ForeignKey(CanvasStudent, null = True)
+    assignment = models.ForeignKey(CanvasAssignment, null = True)
+    submitted = models.BooleanField(default = False)
+    late = models.BooleanField(default = False)
+    
+    def _str_(self):
+        return self.student, self.assignment, self.submitted, self.late
+    
+    def __unicode__(self):
+        return u'{0}'.format(self.student, self.assignment)
+        
+    def get(self):
+        return self.student, self.assignment, self.submitted, self.late
     
     

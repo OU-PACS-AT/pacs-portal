@@ -12,7 +12,8 @@
 		{% if user_is_faculty or user_is_admin %}{% include 'faculty_tools_sidebar.html' %}{% endif %}
 		{% if user_is_faculty or user_is_admin %}{% include 'faculty_resources_sidebar.html' %}{% endif %}
 		
-
+		{% if user_is_admin %}{% include 'board_sidebar.html' %}{% endif %}
+		{% if user_is_admin %}{% include 'task_sidebar.html' %}{% endif %}
 
 
     <li class=""> 

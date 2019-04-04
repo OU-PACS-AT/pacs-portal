@@ -3,9 +3,10 @@ from django.contrib.auth.decorators import login_required
 
 from nucleus.decorators import is_staff, is_faculty, is_student
 
-from staff_resources.views import DashboardView, CropTool, ButtonMaker, BannerMaker, ObjectiveBuilder, AnounceUpdateView, AnounceDeleteView, AnounceCreateView, PACSCourseRotation, CourseWorkloadEstimator, LearningOutcomeGenerator
+from staff_resources.views import DashboardView, CropTool, ButtonMaker, BannerMaker, ObjectiveBuilder, AnounceUpdateView, AnounceDeleteView, AnounceCreateView, PACSCourseRotation, CourseWorkloadEstimator, LearningOutcomeGenerator, NewCourseTrello
 
 urlpatterns = [
+	url(r'^new-course-trello', is_staff(NewCourseTrello.as_view()), name="new-course-trello"),
 	url(r'^outcome-generator', is_staff(LearningOutcomeGenerator.as_view()), name="outcome-generator"),
 	url(r'^workload-estimator', is_staff(CourseWorkloadEstimator.as_view()), name="workload-estimator"),
 	url(r'^course_rotation', is_staff(PACSCourseRotation.as_view()), name="course_rotation"),

@@ -212,7 +212,7 @@ input {
                     ctx.textAlign = "center";
                     for (f = 30; f >= 0; f -= 1) {
                         ctx.font ="bold " + f + "pt Arial, Charcoal, sans-serif";
-                        if (ctx.measureText(text).width < canvas.width -10) {
+                        if (ctx.measureText(text).width < windowWidth -10) {
                             ctx.strokeText(text, x, y);
                             ctx.fillText(text, x, y);
                             break;
@@ -227,7 +227,7 @@ input {
                     ctx2.textAlign = "center";
                     for (f = 30; f >= 0; f -= 1) {
                         ctx2.font ="bold " + f + "pt Arial, Charcoal, sans-serif";
-                        if (ctx2.measureText(text).width < canvas2.width - 10) {
+                        if (ctx2.measureText(text).width < windowWidth - 10) {
                             ctx2.strokeText(text, x, y);
                             ctx2.fillText(text, x, y);
                             break;

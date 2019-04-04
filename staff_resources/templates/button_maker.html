@@ -81,7 +81,7 @@ input {
                      <p><strong>Choose Text</strong></p>
                         <form id= "units">
                                 <input type="radio" id= "start"  name="units" value="Start Here" > Start Here &nbsp;   
-                                <input type="radio" id= "intro"  name="units" value="Introduction"> Introduction &nbsp;<br/>         
+                                <input type="radio" id= "intro"  name="units" value="Student Introductions"> Student Introductions &nbsp;<br/>         
                                 <input type="radio" id= "1"  name="units" value="Unit 1"> Unit 1 &nbsp; 
                                 <input type="radio" id= "2"  name="units" value="Unit 2">  Unit 2 &nbsp;
                                 <input type="radio" id= "3"  name="units" value="Unit 3" > Unit 3 &nbsp;<br/>
@@ -166,7 +166,7 @@ var canvas = document.getElementById('startcanvas');
 				ctx.fillStyle = "white";
                 for (f = 18; f >= 0; f -= 1) {
                     ctx.font = "bold " + f + "pt Arial, Charcoal, sans-serif";
-                    if (ctx.measureText(text).width < canvas.width - 10) {
+                    if (ctx.measureText(text).width < 188) {
                         ctx.strokeText(text, x, y);
                         ctx.fillText(text, x, y);
                         
@@ -315,25 +315,26 @@ var canvas = document.getElementById('startcanvas');
 				ctx.fillStyle= "black";
                 ctx.globalAlpha = 0.25;
                 ctx.fillRect(0,0,canvas.width,canvas.height);				 
-			};
-				 
+			};			
+			
+			}							 
             
             function showCropedImage() {                
                 ctx.fillStyle = "white";
                 theText = setText(); 
-				
+               	                				
 				if (document.getElementById("bnw").checked){				
 					blackAndWhite();
 				}              
                			
-				if (document.getElementById("studentR").checked){
+				if ((document.getElementById("studentR").checked) || (document.getElementById("intro").checked) ){
                     var splitText = theText.split(" ");
                     var line1 = splitText[0];
                     var line2= splitText[1];
                     writeMeme(line1, 188, 205);
                     writeMeme(line2, 188, 232);
                 }
-                else
+				else
                 {
                    writeMeme(theText, 188, 205); 
                 }
@@ -365,6 +366,8 @@ var canvas = document.getElementById('startcanvas');
                 scale.value = 1;
                 
             };
+            
+           
             
 </script>
  

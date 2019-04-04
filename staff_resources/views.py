@@ -129,5 +129,9 @@ class ObjectiveBuilder(CurrentUserMixin,CCETemplateView):
     template_name = 'objective_builder.html'
     page_title = 'Objective Builder'        
        
+class NewCourseTrello(CurrentUserMixin,CCETemplateView):
+    sidebar_group = ['staff_resources', 'new-course-trello']
+    template_name = 'new_course_template.html'
+    page_title = 'Trello Boards'    
       
        

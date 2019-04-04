@@ -74,7 +74,7 @@ $(document).ready(function() {
 	           			{% if form.has_override.value %}
 							<td style="text-align:left">
 								{{ form.name }}
-								{% include "pacs_tags/icon_w_tooltip.html" with icon="exclamation-sign" tooltiptext="Has Override" %}
+								{% include "pacs_tags/icon_w_tooltip.html" with icon_class="glyphicon glyphicon-exclamation-sign" tooltiptext="Has Override" %}
 							</td>
 						{% else %}
 							<td style="text-align:left">{{ form.name }}</td>
