@@ -1,9 +1,16 @@
 {% extends "admin/change_list.html" %}
+{% load static %}
+{% load tz %}
+
+{% block extrastyle %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% static "admin/css/pacs_admin.css" %}" />
+{% endblock %}
 
 {% block object-tools-items %}
 
 	<li>
-		<select style="float:left; height:28px;" id="reload_selector"> 
+		<select style="float:left; height:30px;" id="reload_selector"> 
 			{% for term in terms %}
 				<option value="{{term.term_id}}">{{term.name}}</option>		
 			{% endfor %}
@@ -26,4 +33,12 @@ django.jQuery(document).ready(function() {
 	});
 });
 </script>
+{% endblock %}
+
+{% block content_title %}
+	{{ block.super }}
+	<br>
+	<span><i>Note: Reloading data will clear out the cached data for dependent tables</i></span>
+	<br>
+	<span>Data loaded: <mark>{{ load_date|localtime }}</mark></span>
 {% endblock %}

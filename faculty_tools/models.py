@@ -5,7 +5,7 @@ from django.db import models
 
 # Nucleus imports
 from nucleus.models import PACSModel
-from canvas.models import Student as CanvasStudent, Assignment as CanvasAssignment
+from canvas.models import Student, Course as CanvasCourse
 
 class Course(PACSModel):
     course_id = models.IntegerField()
@@ -19,14 +19,14 @@ class Course(PACSModel):
         return self.class_name
 
 class Assignment(PACSModel):
-    course_id = models.IntegerField(unique = False)
-    assignment_id = models.IntegerField(unique = False)
-    name = models.CharField(max_length = 100, null=True, blank=True)
+    assignment_id = models.IntegerField(unique = True)
+    name = models.CharField(max_length = 500, null=True)
     start_date = models.DateField(null=True, blank=True)
     due_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     has_override = models.BooleanField(default = False)
     is_quiz = models.BooleanField(default = False)
+    course  = models.ForeignKey(CanvasCourse, null=True, on_delete=models.CASCADE,)
     
     def _str_(self):
         return self.assignment_id, self.name, self.start_date, self.due_date, self.end_date, self.has_override, self.is_quiz
@@ -37,23 +37,26 @@ class Assignment(PACSModel):
     def get(self):
         return self.assignment_id
     
-class Student(PACSModel):
-    course_id = models.IntegerField(unique = False)
-    student_id = models.IntegerField(unique = False)
-    name = models.CharField(max_length = 100, null=True, blank=True)
-    
-    def _str_(self):
-        return self.student_id, name
+class StudentCourse(PACSModel):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE,)
+    course = models.ForeignKey(CanvasCourse, on_delete=models.CASCADE,)
 
-    def __unicode__(self):
-        return u'{0}'.format(self.name)
-        
-    def get(self):
-        return self.name
+    class Meta:
+        verbose_name_plural = "StudentCourses"
+        ordering = ('student','course')
+
+    def _str_(self):
+        return self.student, self.course  
     
-class Submissions(PACSModel):
-    student = models.ForeignKey(CanvasStudent, null = True)
-    assignment = models.ForeignKey(CanvasAssignment, null = True)
+    def __unicode__(self):
+        return u'{0}'.format(self.student)
+
+    def get(self):
+        return self.student
+    
+class Submission(PACSModel):
+    student = models.ForeignKey(Student, null = True, on_delete=models.CASCADE,)
+    assignment = models.ForeignKey(Assignment, null = True, on_delete=models.CASCADE,)
     submitted = models.BooleanField(default = False)
     late = models.BooleanField(default = False)
     

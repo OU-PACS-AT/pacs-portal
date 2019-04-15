@@ -19,9 +19,9 @@ import logging
 import requests
 
 # Form imports
-from faculty_tools.forms import CourseSimpleSearch, AssignmentDatesForm, AssignmentSimpleSearch, StudentSimpleSearch, SubmissionsSimpleSearch
-from faculty_tools.models import Course, Assignment, Student, Submissions
-from canvas.models import Course as CanvasCourse, Assignment as CanvasAssignment, Student as CanvasStudent
+from faculty_tools.forms import CourseSimpleSearch, AssignmentDatesForm, AssignmentSimpleSearch, StudentSimpleSearch, SubmissionSimpleSearch
+from faculty_tools.models import Course, Assignment, Submission, StudentCourse
+from canvas.models import Course as CanvasCourse, Student
 
 class CourseListView(CurrentUserMixin, CCESearchView):
     model = Course
@@ -116,10 +116,13 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
     def get(self, request, *args, **kwargs):
         creds = UserCredentials()
         api = CanvasAPI()
-        self.model.user_objects.all().delete()
-        self.course_id = self.kwargs['course_id']
-        api.is_teacher_of_course(self.course_id, creds.get_OUNetID())
-        if not api.is_teacher_of_course(self.course_id, creds.get_OUNetID()):
+        
+        course_id = int(self.kwargs['course_id'])
+        self.model.objects.filter(course__course_id = course_id).delete()
+        course = CanvasCourse.objects.filter(course_id = course_id).first()
+        
+        api.is_teacher_of_course(course_id, creds.get_OUNetID())
+        if not api.is_teacher_of_course(course_id, creds.get_OUNetID()):
             raise PermissionDenied
 
         if ('assignment_id' in self.kwargs and 'student_id' in self.kwargs):
@@ -127,9 +130,9 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
             self.student_id = self.kwargs['student_id']
             self.page_title = "Extend Due Dates"
             
-            json_data = api.get_assignment(self.course_id, self.assignment_id)
+            json_data = api.get_assignment(course_id, self.assignment_id)
             
-            override = api.get_assignment_override(self.course_id, self.assignment_id, self.student_id) 
+            override = api.get_assignment_override(course_id, self.assignment_id, self.student_id) 
             if override:
                 if 'due_at' in override:
                     json_data['due_at'] = override['due_at']
@@ -150,7 +153,7 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
             json_list = [json_data] #the data from canvas
 
         else:
-            json_data = api.get_assignments(self.course_id)
+            json_data = api.get_assignments(course_id)
             json_list = list(json_data) #the data from canvas
 
         for assignment in json_list:   #get the stuff i need from the canvas data             
@@ -179,15 +182,16 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
             else:
                 end_date = None
                                 
-            Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, course_id = self.course_id, has_override = has_override, is_quiz = is_quiz)
+            Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, has_override = has_override, is_quiz = is_quiz, course = course)
             
         return super(EditDueDates, self).get(request, *args, **kwargs)
         
-    def get_queryset(self):
-        return self.model.user_objects.all()
+    def get_queryset(self, *args, **kwargs):
+        course_id = int(self.kwargs['course_id'])
+        return self.model.objects.filter(course__course_id = course_id).all()
         
     def get_context_data(self, *args, **kwargs): 
-        self.course_id = self.kwargs['course_id']
+        course_id = int(self.kwargs['course_id'])
 
         if ('assignment_id' in self.kwargs and 'student_id' in self.kwargs):
             self.assignment_id = self.kwargs['assignment_id']
@@ -198,18 +202,18 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
         creds = UserCredentials()
         if  (hasattr(self,'assignment_id') and hasattr(self,'student_id')):
             data['assignment_id'] = self.assignment_id
-            data['assignment_name'] = Assignment.user_objects.filter(assignment_id = self.assignment_id).first()
+            data['assignment_name'] = Assignment.objects.filter(assignment_id = self.assignment_id).first()
             if not data['assignment_name']:
-                data['assignment_name'] = api.get_assignment(self.course_id, self.assignment_id)['name']
+                data['assignment_name'] = api.get_assignment(course_id, self.assignment_id)['name']
             data['student_id'] = self.student_id
-            data['student_name'] = Student.user_objects.filter(student_id = self.student_id).first()
+            data['student_name'] = Student.objects.filter(canvas_id = self.student_id).first()
             if not data['student_name']:
                 data['student_name'] = api.get_user(self.student_id)['name']
             data['is_override_create'] = True
-        data['course_id'] = self.course_id
-        data['course_name'] = Course.user_objects.filter(course_id = self.course_id).first()
+        data['course_id'] = course_id
+        data['course_name'] = Course.objects.filter(course_id = course_id).first()
         if not data['course_name']:
-            data['course_name'] = api.get_courses(self.course_id)['name']
+            data['course_name'] = api.get_courses(course_id)['name']
             
         has_override_dict = {}
         is_quiz_dict = {}
@@ -234,7 +238,7 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
         return data
 
     def formset_valid(self, formset):
-        self.course_id = self.kwargs['course_id']
+        course_id = self.kwargs['course_id']
 
         cleaned_data = formset.clean()
         capi = CanvasAPI() 
@@ -266,17 +270,17 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
                     self.student_id = self.kwargs['student_id']
                     
                     if has_override:
-                        capi.update_assignment_override(self.course_id, self.assignment_id, self.student_id, due_date_time, start_date_time, end_date_time)
+                        capi.update_assignment_override(course_id, self.assignment_id, self.student_id, due_date_time, start_date_time, end_date_time)
                         self.success_message = "Assignment override updated!"
                     else:
-                        capi.create_assignment_override(self.course_id, self.assignment_id, self.student_id, due_date_time, start_date_time, end_date_time)
+                        capi.create_assignment_override(course_id, self.assignment_id, self.student_id, due_date_time, start_date_time, end_date_time)
                         self.success_message = "Assignment override created!"
 
                 else:
                     if has_override:
-                        capi.delete_assignment_overrides(self.course_id, assignment_id)
+                        capi.delete_assignment_overrides(course_id, assignment_id)
                         
-                    capi.update_assignment_dates(self.course_id, assignment_id, due_date_time, start_date_time, end_date_time)    
+                    capi.update_assignment_dates(course_id, assignment_id, due_date_time, start_date_time, end_date_time)    
                 
         return super(EditDueDates, self).formset_valid(formset)
     
@@ -287,7 +291,6 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
     
     
 class AssignmentListView(CurrentUserMixin, CCESearchView):
-    #logging.warning("******************************************AssignmentListView*************************************")
     model = Assignment
     page_title = 'Assignment List'
     search_form_class = AssignmentSimpleSearch
@@ -301,28 +304,29 @@ class AssignmentListView(CurrentUserMixin, CCESearchView):
     show_context_menu = False
 
     def get(self, request, *args, **kwargs):
-        self.model.user_objects.all().delete()
+        course_id = int(self.kwargs['course_id'])
+        self.model.objects.filter(course__course_id = course_id).delete()
+        course = CanvasCourse.objects.filter(course_id = course_id).first()
         api = CanvasAPI()
-        course_id = self.kwargs['course_id']
 
         json_data = api.get_assignments(course_id)
         json_list = list(json_data) #the data from canvas
         
         for assignment in json_list:   #get the stuff i need from the canvas data
-            logging.warning("AssignmentListView")
-            logging.warning(str(assignment))             
             assignment_id = assignment['id']
             assignment_name = assignment['name']             
             has_override = assignment['has_overrides']
             is_quiz = assignment['is_quiz_assignment']   
-            Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, course_id = course_id, has_override = has_override, is_quiz = is_quiz)
+            Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, course = course, has_override = has_override, is_quiz = is_quiz)
         
         return super(AssignmentListView, self).get(request, *args, **kwargs)
  
-    def get_queryset(self):
-        return self.model.user_objects.filter(is_quiz = False).all()
+    def get_queryset(self, *args, **kwargs):
+        course_id = int(self.kwargs['course_id'])
+        return self.model.objects.filter(course__course_id = course_id, is_quiz = False).all()
 
     def render_buttons(self, user, obj, *args, **kwargs):
+        course_id = int(self.kwargs['course_id'])
         buttons = super(AssignmentListView, self).render_buttons(user, obj,
                                                             *args, **kwargs)
         buttons.append(
@@ -330,7 +334,7 @@ class AssignmentListView(CurrentUserMixin, CCESearchView):
             self.render_button(btn_class='btn-warning',
                                button_text='Choose Assignment',
                                icon_classes='glyphicon glyphicon-edit',
-                               url=reverse('course_list') + str(obj.course_id) + "/" + str(obj.assignment_id) + '/extend/',
+                               url=reverse('course_list') + str(course_id) + "/" + str(obj.assignment_id) + '/extend/',
                                label="Choose Assignment",
                                condensed=False,),
 
@@ -345,14 +349,16 @@ class StudentListView(CurrentUserMixin, CCESearchView):
     success_message = "success"
     sidebar_group = ['faculty_tools', 'course_list']
     columns = [
-        ('Student ID', 'student_id'),
+        ('Student ID', 'canvas_id'),
         ('Student Name', 'name'),
     ]
     paginate_by = 5
     show_context_menu = False
 
     def get(self, request, *args, **kwargs):
-        self.model.user_objects.all().delete()
+        course_id = int(self.kwargs['course_id'])
+        StudentCourse.objects.filter(course__course_id = course_id).delete()
+        course = CanvasCourse.objects.filter(course_id = course_id).first()
         api = CanvasAPI()
         course_id = self.kwargs['course_id']
         assignment_id = self.kwargs['assignment_id']
@@ -360,36 +366,42 @@ class StudentListView(CurrentUserMixin, CCESearchView):
         json_data = api.get_students(course_id)
         json_list = list(json_data) #the data from canvas
 
-        for student in json_list:   #get the stuff i need from the canvas data             
-            student_id = student['id']
-            student_name = student['name']                
-            Student.user_objects.create(student_id = student_id, name = student_name, course_id = course_id)
+        for student_record in json_list:   #get the stuff i need from the canvas data             
+            student_id = student_record['id']
+            student = Student.objects.filter(canvas_id = int(student_id)).first()
+            StudentCourse.user_objects.create(student = student, course = course)
         
         return super(StudentListView, self).get(request, *args, **kwargs)
 
-    def get_queryset(self):
-        return self.model.user_objects.all()
+    def get_queryset(self, *args, **kwargs):
+        course_id = int(self.kwargs['course_id'])
+        results = self.model.objects.filter(studentcourse__course__course_id = course_id).all()
+        logging.warning("RESULTS:")
+        logging.warning(vars(results))
+        return results
+        #return self.model.objects.filter(studentcourse__course__course_id = course_id).all()
 
     def render_buttons(self, user, obj, *args, **kwargs):
         buttons = super(StudentListView, self).render_buttons(user, obj,
                                                             *args, **kwargs)
         
-        assignment_id = self.kwargs['assignment_id']
+        course_id = int(self.kwargs['course_id'])
+        assignment_id = int(self.kwargs['assignment_id'])
         
         buttons.append(
 
             self.render_button(btn_class='btn-warning',
                                button_text='Choose Student',
                                icon_classes='glyphicon glyphicon-edit',
-                               url=reverse('course_list') + str(obj.course_id) + "/" + str(assignment_id) + '/' + str(obj.student_id) + '/extend/',
+                               url=reverse('course_list') + str(course_id) + "/" + str(assignment_id) + '/' + str(obj.canvas_id) + '/extend/',
                                label="Choose Student",
                                condensed=False,),
 
         )
         return buttons
     
-class SubmissionsListView(CurrentUserMixin, CCESearchView):
-    model = Submissions
+class SubmissionListView(CurrentUserMixin, CCESearchView):
+    model = Submission
     page_title = 'Submissions List'
     search_form_class = StudentSimpleSearch
     success_message = "success"
@@ -404,55 +416,89 @@ class SubmissionsListView(CurrentUserMixin, CCESearchView):
     show_context_menu = False
     
     def get(self, request, *args, **kwargs):
-        self.model.user_objects.all().delete()
-        api = CanvasAPI()
-        course_id = self.kwargs['course_id']
+        course_id = int(self.kwargs['course_id'])
+        reload = request.GET.get('reload', False) == "True"
+        existing_records = self.model.objects.filter(assignment__course__course_id = course_id).first()
         
-        json_data = api.get_submissions(course_id)
-        json_list = list(json_data) #the data from canvas
-        
-        for sub in json_list:
-            student_id = sub['user_id']
-            student = CanvasStudent.objects.filter(canvas_id = student_id).first()
+        if existing_records is None or reload:
+            self.model.objects.filter(assignment__course__course_id = course_id).all().delete()
+            api = CanvasAPI()
+
+            course = CanvasCourse.objects.filter(course_id = course_id).first()
+            Assignment.objects.filter(course = course).all().delete()
+            json_data = api.get_assignments(course_id)
+            json_list = list(json_data) #the data from canvas
             
-            assignment_id = sub['assignment_id']
-            assignment = CanvasAssignment.objects.filter(assignment_id = assignment_id).first()
+            for assignment in json_list:   #get the stuff i need from the canvas data
+                assignment_id = assignment['id']
+                assignment_name = assignment['name']             
+                has_override = assignment['has_overrides']
+                is_quiz = assignment['is_quiz_assignment']   
+                Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, course = course, has_override = has_override, is_quiz = is_quiz)
             
-            submitted = False
-            if sub['workflow_state'] != 'unsubmitted':
-                submitted = True
-            late = sub['late']
-            Submissions.user_objects.create(student = student, assignment = assignment, submitted = submitted, late = late)
+            student_list = api.get_students(course_id)
+            for student in student_list:
+                localstudent = Student.objects.filter(canvas_id = int(student['id'])).first()
+                if localstudent is not None:
+                    StudentCourse.user_objects.create(student = localstudent, course = course) 
+            
+            json_data = api.get_submissions(course_id)
+            json_list = list(json_data) #the data from canvas
+            
+            for sub in json_list:
+                student_id = sub['user_id']
+                student = Student.objects.filter(canvas_id = student_id).first()
+                
+                assignment_id = sub['assignment_id']
+                assignment = Assignment.objects.filter(assignment_id = assignment_id).first()
+                
+                submitted = False
+                if sub['workflow_state'] != 'unsubmitted':
+                    submitted = True
+                late = sub['late']
+                Submission.user_objects.create(student = student, assignment = assignment, submitted = submitted, late = late)
         
-        return super(SubmissionsListView, self).get(request, *args, **kwargs)
+        return super(SubmissionListView, self).get(request, *args, **kwargs)
     
     def get_context_data(self, *args, **kwargs):
-        context = super(SubmissionsListView, self).get_context_data(*args, **kwargs) 
+        context = super(SubmissionListView, self).get_context_data(*args, **kwargs) 
         course_id = int(self.kwargs['course_id'])
         
-        assignment_list = CanvasAssignment.objects.filter(course__course_id = course_id).all().order_by('name').values()
-        student_list = CanvasStudent.objects.filter(studentcourse__course__course_id = course_id).all().order_by('sortable_name').values()
-        
-        submissions = []
-        for student in student_list:
-            temp = {}
-            temp['student'] = student
-            temp['assignments'] = []
-            for assignment in assignment_list:
-                temp2 = list(Submissions.user_objects.filter(student__canvas_id = student['canvas_id'], assignment__assignment_id = assignment['assignment_id']).values())
-                if temp2:
-                    temp['assignments'].append(temp2.pop())
-                else:
-                    temp['assignments'].append({})
-            submissions.append(temp)
-        
-        context['assignments'] = assignment_list
-        context['submissions'] = submissions
+        load_date = Submission.objects.filter(assignment__course__course_id = course_id).order_by('created_at').first()
+        logging.warning("LOAD DATE:")
+        logging.warning(vars(load_date))
+        if load_date is not None:
+            context['load_date'] = load_date
+            
+            assignment_list = Assignment.objects.filter(course__course_id = course_id).all().order_by('name').values()
+            student_list = Student.objects.filter(studentcourse__course__course_id = course_id).all().order_by('sortable_name').values()
+
+            logging.warning("ASSIGNMENT LIST:")
+            logging.warning(str(assignment_list))
+            logging.warning("STUDENT LIST:")
+            logging.warning(str(student_list))
+
+            
+            submissions = []
+            for student in student_list:
+                temp = {}
+                temp['student'] = student
+                temp['assignments'] = []
+                for assignment in assignment_list:
+                    temp2 = list(Submission.objects.filter(student__canvas_id = student['canvas_id'], assignment__assignment_id = assignment['assignment_id']).values())
+                    if temp2:
+                        temp['assignments'].append(temp2.pop())
+                    else:
+                        temp['assignments'].append({})
+                submissions.append(temp)
+            
+            context['assignments'] = assignment_list
+            context['submissions'] = submissions
         
         return context
     
     def get_queryset(self):
-        return self.model.user_objects.all().order_by('student_id' , 'assignment_id')
+        return self.model.objects.all().order_by('student_id' , 'assignment_id')
     
     
     

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, tzinfo, date, time
 from toolkit.forms import CCESimpleSearchForm, CCEModelSearchForm, CCEModelForm
 
 # Models
-from models import Course, Assignment, Student, Submissions
+from models import Course, Assignment, Student, Submission
 import logging
 
 
@@ -37,11 +37,11 @@ class StudentSimpleSearch(CCESimpleSearchForm):
         field_lookups = {'search': ('id__icontains',
                                     'name__icontains')}
         
-class SubmissionsSimpleSearch(CCESimpleSearchForm):
+class SubmissionSimpleSearch(CCESimpleSearchForm):
     search_placeholder = 'Search Submissions'
 
     class Meta(CCESimpleSearchForm.Meta):
-        model = Submissions
+        model = Submission
         field_lookups = {'search': ('id__icontains',
                                     'student_id__icontains')}
         

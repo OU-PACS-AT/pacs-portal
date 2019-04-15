@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, tzinfo, date, time
 from toolkit.forms import CCESimpleSearchForm, CCEModelSearchForm, CCEModelForm
 
 # Models
-from models import Course, Student, Assignment, StudentCourse
+from models import Course, Student
 
 import logging
 
@@ -59,21 +59,21 @@ class StudentSimpleSearchForm(CCESimpleSearchForm):
                                     'login_id__icontains')}
         
         
-class AssignmentSimpleSearchForm(CCESimpleSearchForm):
-    search_placeholder = 'Search Assignments'
+#class AssignmentSimpleSearchForm(CCESimpleSearchForm):
+#    search_placeholder = 'Search Assignments'
 
-    class Meta(CCESimpleSearchForm.Meta):
-        model = Assignment
-        field_lookups = {'search': ('assignment_id__icontains',
-                                    'name__icontains',
-                                    'course__name__icontains')}
+#    class Meta(CCESimpleSearchForm.Meta):
+#        model = Assignment
+#        field_lookups = {'search': ('assignment_id__icontains',
+#                                    'name__icontains',
+#                                    'course__name__icontains')}
         
-class StudentCourseSimpleSearchForm(CCESimpleSearchForm):
-    search_placeholder = 'Search Students'
+#class StudentCourseSimpleSearchForm(CCESimpleSearchForm):
+#    search_placeholder = 'Search Students'
 
-    class Meta(CCESimpleSearchForm.Meta):
-        model = StudentCourse
-        field_lookups = {'search': ('student__name__icontains',
-                                    'student__sortable_name__icontains',
-                                    'student__sis_user_id__icontains',
-                                    'student__login_id__icontains')}        
+#    class Meta(CCESimpleSearchForm.Meta):
+#        model = StudentCourse
+#        field_lookups = {'search': ('student__name__icontains',
+#                                    'student__sortable_name__icontains',
+#                                    'student__sis_user_id__icontains',
+#                                    'student__login_id__icontains')}        

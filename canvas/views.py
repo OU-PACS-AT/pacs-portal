@@ -19,8 +19,8 @@ from toolkit.views import CCECreateView, CCECreateWithInlinesView, CCEDeleteView
     ReportDownloadDetailView, ReportDownloadSearchView
 
 # Form imports
-from forms import CourseSimpleSearchForm, CourseAdvancedSearchForm, StudentSimpleSearchForm, AssignmentSimpleSearchForm, StudentCourseSimpleSearchForm
-from models import Course, Student, StudentCourse, Assignment, Term, SubAccount
+from forms import CourseSimpleSearchForm, CourseAdvancedSearchForm, StudentSimpleSearchForm
+from models import Course, Student, Term, SubAccount
 
 
 class CourseListView(CurrentUserMixin, CCESearchView):
@@ -66,34 +66,34 @@ class StudentListView(CurrentUserMixin, CCESearchView):
     ]
     paginate_by = 50
     
-class AssignmentListView(CurrentUserMixin, CCESearchView):
-    model = Assignment
-    page_title = 'Assignment List'
-    search_form_class = AssignmentSimpleSearchForm
-    sidebar_group = ['canvas', 'assignment_list']
-    columns = [
-        ('Name', 'name'),
-        ('Assignment ID', 'assignment_id'),        
-        ('Course', 'course'),
-        ('Quiz?', 'is_quiz_assignment'),
-    ]
-    paginate_by = 50
+#class AssignmentListView(CurrentUserMixin, CCESearchView):
+#    model = Assignment
+#    page_title = 'Assignment List'
+#    search_form_class = AssignmentSimpleSearchForm
+#    sidebar_group = ['canvas', 'assignment_list']
+#    columns = [
+#        ('Name', 'name'),
+#        ('Assignment ID', 'assignment_id'),        
+#        ('Course', 'course'),
+#        ('Quiz?', 'is_quiz_assignment'),
+#    ]
+#    paginate_by = 50
     
-class StudentCourseListView(CurrentUserMixin, CCESearchView):
-    model = StudentCourse
-    page_title = 'Student Course List'
-    search_form_class = StudentCourseSimpleSearchForm
-    sidebar_group = ['canvas', 'studentcourse_list']
-    columns = [
-        ('Student', 'student'),        
-        ('Course', 'course'),
-    ]
-    paginate_by = 50
+#class StudentCourseListView(CurrentUserMixin, CCESearchView):
+#    model = StudentCourse
+#    page_title = 'Student Course List'
+#    search_form_class = StudentCourseSimpleSearchForm
+#    sidebar_group = ['canvas', 'studentcourse_list']
+#    columns = [
+#        ('Student', 'student'),        
+#        ('Course', 'course'),
+#    ]
+#    paginate_by = 50
     
-    def get_queryset(self):
-        course_id = self.kwargs['course_id']
-        queryset = super(StudentCourseListView,self).get_queryset()
-        if course_id is not None:
-            queryset = queryset.filter(course__course_id = int(course_id)).all().order_by('student__name')
-        return queryset
+#    def get_queryset(self):
+#        course_id = self.kwargs['course_id']
+#        queryset = super(StudentCourseListView,self).get_queryset()
+#        if course_id is not None:
+#            queryset = queryset.filter(course__course_id = int(course_id)).all().order_by('student__name')
+#        return queryset
     

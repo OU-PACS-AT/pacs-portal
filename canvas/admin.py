@@ -9,7 +9,12 @@ from nucleus.auth import UserCredentials
 from nucleus import settings
 
 # Model Imports
-from models import SubAccount, Course, Term, Student, StudentCourse, Assignment
+from models import SubAccount, Course, Term, Student
+from faculty_tools.models import Submission, StudentCourse, Assignment
+
+class TermAdmin(admin.ModelAdmin):
+    list_display = ('term_id', 'name')
+
 
 class SubAccountAdmin(admin.ModelAdmin):
     list_display = ('name', 'subaccount_id', 'parent')
@@ -22,10 +27,17 @@ class SubAccountAdmin(admin.ModelAdmin):
         ]
         return custom_urls + super_urls
     
+    def changelist_view(self, request, extra_context = None):
+        extra_context = extra_context or {}
+        most_recent_timestamp = self.model.objects.all().order_by('created_at').first()
+        if most_recent_timestamp is not None:
+            extra_context['load_date'] = most_recent_timestamp.created_at
+        return super(SubAccountAdmin, self).changelist_view(request, extra_context=extra_context)
+    
     def reload_subaccounts(self, request):
         self.model.objects.all().delete()
         creds = UserCredentials()
-        api = CanvasAPI(sub_account = 127)
+        api = CanvasAPI()
         
         first_iteration = api.get_subaccounts()
         for sub_account in first_iteration:
@@ -41,7 +53,8 @@ class SubAccountAdmin(admin.ModelAdmin):
             
         self.message_user(request, "Subaccounts successfully reloaded!")
         return HttpResponseRedirect("../")
-    
+
+
 class CourseAdmin(admin.ModelAdmin):
     list_display = ['name', 'course_code', 'course_id', 'subaccount']
     change_list_template = 'admin/course_change_list.html'
@@ -53,11 +66,20 @@ class CourseAdmin(admin.ModelAdmin):
         ]
         return custom_urls + super_urls
 
+    def changelist_view(self, request, extra_context = None):
+        extra_context = extra_context or {}
+        most_recent_timestamp = self.model.objects.all().order_by('created_at').first()
+        if most_recent_timestamp is not None:
+            extra_context['load_date'] = most_recent_timestamp.created_at
+        extra_context['terms'] = Term.objects.all()
+        extra_context['current_term_id'] = settings.CURRENT_TERM
+        return super(CourseAdmin, self).changelist_view(request, extra_context = extra_context)
+
     def reload_course(self, request, term_id):
         term = Term.objects.filter(term_id = term_id).first()        
         self.model.objects.filter(term = term).delete()
         creds = UserCredentials()
-        api = CanvasAPI(sub_account = 127, term = term_id)
+        api = CanvasAPI(term = term_id)
         
         course_list = api.get_courses_by_term()
         for course in course_list:
@@ -67,15 +89,6 @@ class CourseAdmin(admin.ModelAdmin):
             
         self.message_user(request, "Course list successfully reloaded!")
         return HttpResponseRedirect("../../")
-
-    def changelist_view(self, request, extra_context = None):
-        extra_context = extra_context or {}
-        extra_context['terms'] = Term.objects.all()
-        extra_context['current_term_id'] = settings.CURRENT_TERM
-        return super(CourseAdmin, self).changelist_view(request, extra_context = extra_context)
-    
-class TermAdmin(admin.ModelAdmin):
-    list_display = ('term_id', 'name')
     
 class StudentAdmin(admin.ModelAdmin):
     list_display = ['name', 'login_id', 'canvas_id', 'sis_user_id']
@@ -88,10 +101,18 @@ class StudentAdmin(admin.ModelAdmin):
         ]
         return custom_urls + super_urls
 
+    def changelist_view(self, request, extra_context = None):
+        extra_context = extra_context or {}
+        most_recent_timestamp = self.model.objects.all().order_by('created_at').first()
+        if most_recent_timestamp is not None:
+            extra_context['load_date'] = most_recent_timestamp.created_at
+        return super(StudentAdmin, self).changelist_view(request, extra_context=extra_context)
+
     def reload_student(self, request):
         self.model.objects.all().delete()
+        Submission.objects.all().delete()
         creds = UserCredentials()
-        api = CanvasAPI(sub_account = 127)
+        api = CanvasAPI()
         
         student_list = api.get_account_users()
         for student in student_list:
@@ -102,65 +123,9 @@ class StudentAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("../")
 
 
-class StudentCourseAdmin(admin.ModelAdmin):
-    list_display = [ 'student', 'course']
-    change_list_template = 'admin/studentcourse_change_list.html'
-    
-    def get_urls(self):
-        super_urls = super(StudentCourseAdmin, self).get_urls()
-        custom_urls = [
-            url(r'reload/$', self.reload_studentcourse)
-        ]
-        return custom_urls + super_urls
-
-    def reload_studentcourse(self, request):
-        self.model.objects.all().delete()
-        creds = UserCredentials()
-        api = CanvasAPI()
-        
-        localcourse_list = Course.objects.all().order_by('course_id')
-        for localcourse in localcourse_list:
-            student_list = api.get_students(localcourse.course_id)
-            for student in student_list:
-                localstudent = Student.objects.filter(canvas_id = int(student['id'])).first()
-                if localstudent is not None:
-                    studentcourse_create = self.model.objects.create(student = localstudent, course = localcourse) 
-                    studentcourse_create.save()
-            
-        self.message_user(request, "Student/Course Enrollment list successfully reloaded!")
-        return HttpResponseRedirect("../")
-    
-class AssignmentAdmin(admin.ModelAdmin):
-    list_display = [ 'name', 'course', 'is_quiz_assignment']
-    change_list_template = 'admin/assignment_change_list.html'
-    
-    def get_urls(self):
-        super_urls = super(AssignmentAdmin, self).get_urls()
-        custom_urls = [
-            url(r'reload/$', self.reload_assignment)
-        ]
-        return custom_urls + super_urls
-
-    def reload_assignment(self, request):
-        self.model.objects.all().delete()
-        creds = UserCredentials()
-        api = CanvasAPI()
-        
-        localcourse_list = Course.objects.all().order_by('course_id')
-        for localcourse in localcourse_list:
-            assignment_list = api.get_assignments(localcourse.course_id)
-            for assignment in assignment_list:
-                assignment_create = self.model.objects.create(assignment_id = assignment['id'], name = assignment['name'], is_quiz_assignment = assignment['is_quiz_assignment'], course = localcourse) 
-                assignment_create.save()
-            
-        self.message_user(request, "Assignment list successfully reloaded!")
-        return HttpResponseRedirect("../")
-    
 admin.site.site_header = "Pacs-Portal Admin Panel"
 
 admin.site.register(SubAccount, SubAccountAdmin)
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Term, TermAdmin)    
 admin.site.register(Student, StudentAdmin)
-admin.site.register(StudentCourse, StudentCourseAdmin)
-admin.site.register(Assignment, AssignmentAdmin)

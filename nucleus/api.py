@@ -34,7 +34,7 @@ class CanvasAPI():
         if sub_account is not None:
             self.SUB_ACCOUNT = sub_account
         else:
-            self.SUB_ACCOUNT = settings.TEST_SUBACCOUNT
+            self.SUB_ACCOUNT = settings.PACS_SUBACCOUNT
             
         if term is not None:
             self.TERM = term

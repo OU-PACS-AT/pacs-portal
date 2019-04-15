@@ -13,7 +13,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <title>
-            PACS - {% block page_title %}{{ page_title }}{% endblock page_title %}
+            {% if server_type != 'PROD' %} {{ server_type }} - {% endif %} PACS - {% block page_title %}{{ page_title }}{% endblock page_title %}
         </title>
         {% include 'header.html' %}
 

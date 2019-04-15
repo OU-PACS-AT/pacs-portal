@@ -5,7 +5,7 @@ from django.conf.urls import url, include
 from nucleus.decorators import is_staff, is_faculty, is_faculty_or_staff, is_student, is_admin
 
 # View imports
-from faculty_tools.views import CourseListView, EditDueDates, AssignmentListView, StudentListView, SubmissionsListView 
+from faculty_tools.views import CourseListView, EditDueDates, AssignmentListView, StudentListView, SubmissionListView 
 from canvas.views import CourseListView as CanvasCourseListView
 
 urlpatterns = [
@@ -28,7 +28,7 @@ urlpatterns = [
             ]))
         ])), 
         url(r'^(?P<course_id>\d+)/', include([
-            url(r'^submissions/$', is_faculty(SubmissionsListView.as_view()),
+            url(r'^submissions/$', is_faculty(SubmissionListView.as_view()),
                 name='view_submissions'),
         ])),
         url(r'',is_faculty(CourseListView.as_view()),
@@ -38,7 +38,7 @@ urlpatterns = [
 
     url(r'^canvas_course_list/', include([ 
         url(r'^(?P<course_id>\d+)/', include([
-            url(r'^submissions/$', is_faculty(SubmissionsListView.as_view()),
+            url(r'^submissions/$', is_faculty(SubmissionListView.as_view()),
                 name='view_submissions'),
         ])),
         url(r'', is_faculty(CanvasCourseListView.as_view()),

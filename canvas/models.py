@@ -21,7 +21,7 @@ class Term(PACSModel):
         return self.name
 
 class SubAccount(PACSModel):
-    parent = models.ForeignKey('self', null=True, related_name='subaccount')
+    parent = models.ForeignKey('self', null=True, related_name='subaccount', on_delete=models.CASCADE,)
     subaccount_id = models.IntegerField(unique = True)
     name = models.CharField(max_length = 100)
 
@@ -77,37 +77,37 @@ class Student(PACSModel):
     def get(self):
         return self.login_id
     
-class StudentCourse(PACSModel):
-    student = models.ForeignKey(Student)
-    course = models.ForeignKey(Course)
+#class StudentCourse(PACSModel):
+#    student = models.ForeignKey(Student)
+#    course = models.ForeignKey(Course)
 
-    class Meta:
-        verbose_name_plural = "StudentCourses"
-        ordering = ('student','course')
+#    class Meta:
+#        verbose_name_plural = "StudentCourses"
+#        ordering = ('student','course')
 
-    def _str_(self):
-        return self.student, self.course  
+#    def _str_(self):
+#        return self.student, self.course  
     
-    def __unicode__(self):
-        return u'{0}'.format(self.student)
+#    def __unicode__(self):
+#        return u'{0}'.format(self.student)
 
-    def get(self):
-        return self.student
+#    def get(self):
+#        return self.student
     
-class Assignment(PACSModel):
-    assignment_id = models.IntegerField(unique = True)
-    name = models.CharField(max_length = 500, null = True)
-    is_quiz_assignment = models.BooleanField()
-    course = models.ForeignKey(Course)
+#class Assignment(PACSModel):
+#    assignment_id = models.IntegerField(unique = True)
+#    name = models.CharField(max_length = 500, null = True)
+#    is_quiz_assignment = models.BooleanField()
+#    course = models.ForeignKey(Course)
 
-    class Meta:
-        ordering = ('course', 'name')
+#    class Meta:
+#        ordering = ('course', 'name')
 
-    def _str_(self):
-        return self.name  
+#    def _str_(self):
+#        return self.name  
     
-    def __unicode__(self):
-        return u'{0}'.format(self.name)
+#    def __unicode__(self):
+#        return u'{0}'.format(self.name)
 
-    def get(self):
-        return self.name
+#    def get(self):
+#        return self.name
