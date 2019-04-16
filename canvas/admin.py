@@ -32,7 +32,7 @@ class SubaccountAdmin(admin.ModelAdmin):
         most_recent_timestamp = self.model.objects.all().order_by('created_at').first()
         if most_recent_timestamp is not None:
             extra_context['load_date'] = most_recent_timestamp.created_at
-        return super(SubAccountAdmin, self).changelist_view(request, extra_context=extra_context)
+        return super(SubaccountAdmin, self).changelist_view(request, extra_context=extra_context)
     
     def reload_subaccounts(self, request):
         self.model.objects.all().delete()
