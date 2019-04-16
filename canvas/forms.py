@@ -9,7 +9,8 @@ from datetime import datetime, timedelta, tzinfo, date, time
 from toolkit.forms import CCESimpleSearchForm, CCEModelSearchForm, CCEModelForm
 
 # Models
-from models import Course, Student
+from models import Course, Student, Term, Subaccount
+from faculty_tools.models import Assignment, StudentCourse
 
 import logging
 
@@ -57,23 +58,81 @@ class StudentSimpleSearchForm(CCESimpleSearchForm):
                                     'sortable_name__icontains',
                                     'sis_user_id__icontains',
                                     'login_id__icontains')}
-        
-        
-#class AssignmentSimpleSearchForm(CCESimpleSearchForm):
-#    search_placeholder = 'Search Assignments'
 
-#    class Meta(CCESimpleSearchForm.Meta):
-#        model = Assignment
-#        field_lookups = {'search': ('assignment_id__icontains',
-#                                    'name__icontains',
-#                                    'course__name__icontains')}
-        
-#class StudentCourseSimpleSearchForm(CCESimpleSearchForm):
-#    search_placeholder = 'Search Students'
+class TermSimpleSearchForm(CCESimpleSearchForm):
+    search_placeholder = 'Search Terms'
 
-#    class Meta(CCESimpleSearchForm.Meta):
-#        model = StudentCourse
-#        field_lookups = {'search': ('student__name__icontains',
-#                                    'student__sortable_name__icontains',
-#                                    'student__sis_user_id__icontains',
-#                                    'student__login_id__icontains')}        
+    class Meta(CCESimpleSearchForm.Meta):
+        model = Term
+        field_lookups = {'search': ('term_id__icontains',
+                                    'name__icontains')}
+
+class SubaccountSimpleSearchForm(CCESimpleSearchForm):
+    search_placeholder = 'Search Subaccounts'
+
+    class Meta(CCESimpleSearchForm.Meta):
+        model = Subaccount
+        field_lookups = {'search': ('subaccount_id__icontains',
+                                    'name__icontains')}
+
+      
+class AssignmentSimpleSearchForm(CCESimpleSearchForm):
+    search_placeholder = 'Search Assignments'
+
+    class Meta(CCESimpleSearchForm.Meta):
+        model = Assignment
+        field_lookups = {'search': ('assignment_id__icontains',
+                                    'name__icontains',
+                                    'course__course_code__icontains',
+                                    'course__course_id__icontains',
+                                    'course__name__icontains')}
+        
+class AssignmentAdvancedSearchForm(CCEModelSearchForm):
+
+    class Meta:
+        model = Assignment
+        field_lookups = {
+            'name': ('name__icontains', 'assignment_id__icontains'),
+            'course': ('course__course_code__icontains', 'course__name__icontains', 'course__course_id__icontains'),
+        }
+
+        fields = (
+            'name',
+            'course',
+        )
+
+        labels = {
+            'name': 'Assignment',
+            'course': 'Course',
+        }
+        
+class StudentCourseSimpleSearchForm(CCESimpleSearchForm):
+    search_placeholder = 'Search Student/Course Mapping'
+
+    class Meta(CCESimpleSearchForm.Meta):
+        model = StudentCourse
+        field_lookups = {'search': ('student__name__icontains',
+                                    'course__name__icontains',
+                                    'course__course_code__icontains',
+                                    'student__sortable_name__icontains',
+                                    'student__sis_user_id__icontains',
+                                    'student__login_id__icontains')}  
+        
+class StudentCourseAdvancedSearchForm(CCEModelSearchForm):
+
+    class Meta:
+        model = StudentCourse
+        field_lookups = {
+            'student': ('student__name__icontains', 'student__sortable_name__icontains'),
+            'course': ('course__course_code__icontains', 'course__name__icontains', 'course__course_id__icontains'),
+        }
+
+        fields = (
+            'student',
+            'course',
+        )
+
+        labels = {
+            'student': 'Student',
+            'course': 'Course',
+        }

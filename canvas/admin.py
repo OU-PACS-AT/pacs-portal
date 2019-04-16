@@ -9,19 +9,19 @@ from nucleus.auth import UserCredentials
 from nucleus import settings
 
 # Model Imports
-from models import SubAccount, Course, Term, Student
+from models import Subaccount, Course, Term, Student
 from faculty_tools.models import Submission, StudentCourse, Assignment
 
 class TermAdmin(admin.ModelAdmin):
     list_display = ('term_id', 'name')
 
 
-class SubAccountAdmin(admin.ModelAdmin):
+class SubaccountAdmin(admin.ModelAdmin):
     list_display = ('name', 'subaccount_id', 'parent')
     change_list_template = 'admin/subaccount_change_list.html'
     
     def get_urls(self):
-        super_urls = super(SubAccountAdmin, self).get_urls()
+        super_urls = super(SubaccountAdmin, self).get_urls()
         custom_urls = [
             url('reload/$', self.reload_subaccounts)
         ]
@@ -125,7 +125,7 @@ class StudentAdmin(admin.ModelAdmin):
 
 admin.site.site_header = "Pacs-Portal Admin Panel"
 
-admin.site.register(SubAccount, SubAccountAdmin)
+admin.site.register(Subaccount, SubaccountAdmin)
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Term, TermAdmin)    
 admin.site.register(Student, StudentAdmin)

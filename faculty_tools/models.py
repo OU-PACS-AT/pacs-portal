@@ -26,7 +26,7 @@ class Assignment(PACSModel):
     end_date = models.DateField(null=True, blank=True)
     has_override = models.BooleanField(default = False)
     is_quiz = models.BooleanField(default = False)
-    course  = models.ForeignKey(CanvasCourse, null=True, on_delete=models.CASCADE,)
+    course  = models.ForeignKey(CanvasCourse, on_delete=models.CASCADE,)
     
     def _str_(self):
         return self.assignment_id, self.name, self.start_date, self.due_date, self.end_date, self.has_override, self.is_quiz

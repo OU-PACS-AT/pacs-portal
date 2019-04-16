@@ -20,7 +20,7 @@ class Term(PACSModel):
     def get(self):
         return self.name
 
-class SubAccount(PACSModel):
+class Subaccount(PACSModel):
     parent = models.ForeignKey('self', null=True, related_name='subaccount', on_delete=models.CASCADE,)
     subaccount_id = models.IntegerField(unique = True)
     name = models.CharField(max_length = 100)
@@ -43,7 +43,7 @@ class Course(PACSModel):
     name = models.CharField(max_length = 100)
     course_code = models.CharField(max_length = 100)
     term = models.ForeignKey(Term, null=True, on_delete=models.CASCADE,)
-    subaccount = models.ForeignKey(SubAccount, null = True, on_delete=models.CASCADE,)
+    subaccount = models.ForeignKey(Subaccount, null = True, on_delete=models.CASCADE,)
     
     class Meta:
         ordering = ('course_code','name',)
@@ -66,48 +66,14 @@ class Student(PACSModel):
     login_id = models.CharField(max_length = 100)
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('sortable_name','login_id')
 
     def _str_(self):
         return self.login_id, self.name, self.canvas_id, self.sis_user_id  
     
     def __unicode__(self):
-        return u'{0}'.format(self.name)
+        return u'{0}'.format(self.sortable_name)
 
     def get(self):
         return self.login_id
-    
-#class StudentCourse(PACSModel):
-#    student = models.ForeignKey(Student)
-#    course = models.ForeignKey(Course)
 
-#    class Meta:
-#        verbose_name_plural = "StudentCourses"
-#        ordering = ('student','course')
-
-#    def _str_(self):
-#        return self.student, self.course  
-    
-#    def __unicode__(self):
-#        return u'{0}'.format(self.student)
-
-#    def get(self):
-#        return self.student
-    
-#class Assignment(PACSModel):
-#    assignment_id = models.IntegerField(unique = True)
-#    name = models.CharField(max_length = 500, null = True)
-#    is_quiz_assignment = models.BooleanField()
-#    course = models.ForeignKey(Course)
-
-#    class Meta:
-#        ordering = ('course', 'name')
-
-#    def _str_(self):
-#        return self.name  
-    
-#    def __unicode__(self):
-#        return u'{0}'.format(self.name)
-
-#    def get(self):
-#        return self.name

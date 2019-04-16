@@ -5,15 +5,40 @@ from django.conf.urls import url, include
 from nucleus.decorators import is_staff, is_faculty, is_faculty_or_staff, is_student, is_admin
 
 # View imports
-from canvas.views import CourseListView as CanvasCourseListView, StudentListView as CanvasStudentListView
+from canvas.views import AdminCourseListView, CourseListView, StudentListView, SubaccountListView, TermListView
+from canvas.views import AssignmentListView, StudentCourseListView
 
 urlpatterns = [
 
-    url(r'^courses/$', is_faculty_or_staff(CanvasCourseListView.as_view()),
+    url(r'^course/$', is_faculty_or_staff(CourseListView.as_view()),
         name='canvas_course_list'),
 
-    url(r'^students/$', is_admin(CanvasStudentListView.as_view()),
+    url(r'^admincourse/$', is_faculty_or_staff(AdminCourseListView.as_view()),
+        name='canvas_admincourse_list'),
+
+    url(r'^student/$', is_admin(StudentListView.as_view()),
         name='canvas_student_list'),
+
+    url(r'^studentcourse/', include([
+        url(r'^(?P<course_id>\d+)/$', is_admin(StudentCourseListView.as_view()),
+            name='canvas_studentcourse_list_course_id'),
+        url(r'$', is_admin(StudentCourseListView.as_view()),
+            name='canvas_studentcourse_list'),   
+    ])),
+        
+    url(r'^assignment/', include([
+        url(r'^(?P<course_id>\d+)/$', is_admin(AssignmentListView.as_view()),
+            name='canvas_assignment_list_course_id'),
+        url(r'$', is_admin(AssignmentListView.as_view()),
+            name='canvas_assignment_list'),   
+    ])),
+                                           
+
+    url(r'^subaccount/$', is_admin(SubaccountListView.as_view()),
+        name='canvas_subaccount_list'),
+
+    url(r'^term/$', is_admin(TermListView.as_view()),
+        name='canvas_term_list'),
 
     ]
 

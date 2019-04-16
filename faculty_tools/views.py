@@ -86,7 +86,6 @@ class CourseListView(CurrentUserMixin, CCESearchView):
 
 
 class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
-    #logging.warning("******************************************EditDueDates*************************************")
     model = Assignment
     page_title = 'Edit Due Dates'
     success_message = "Dates updated successfully!"
@@ -376,10 +375,7 @@ class StudentListView(CurrentUserMixin, CCESearchView):
     def get_queryset(self, *args, **kwargs):
         course_id = int(self.kwargs['course_id'])
         results = self.model.objects.filter(studentcourse__course__course_id = course_id).all()
-        logging.warning("RESULTS:")
-        logging.warning(vars(results))
         return results
-        #return self.model.objects.filter(studentcourse__course__course_id = course_id).all()
 
     def render_buttons(self, user, obj, *args, **kwargs):
         buttons = super(StudentListView, self).render_buttons(user, obj,
@@ -421,11 +417,15 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
         existing_records = self.model.objects.filter(assignment__course__course_id = course_id).first()
         
         if existing_records is None or reload:
-            self.model.objects.filter(assignment__course__course_id = course_id).all().delete()
             api = CanvasAPI()
 
             course = CanvasCourse.objects.filter(course_id = course_id).first()
+            
+            # Delete existing data
+            self.model.objects.filter(assignment__course = course).all().delete()
             Assignment.objects.filter(course = course).all().delete()
+            StudentCourse.objects.filter(course = course).all().delete()
+             
             json_data = api.get_assignments(course_id)
             json_list = list(json_data) #the data from canvas
             
@@ -456,7 +456,7 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
                 if sub['workflow_state'] != 'unsubmitted':
                     submitted = True
                 late = sub['late']
-                Submission.user_objects.create(student = student, assignment = assignment, submitted = submitted, late = late)
+                self.model.user_objects.create(student = student, assignment = assignment, submitted = submitted, late = late)
         
         return super(SubmissionListView, self).get(request, *args, **kwargs)
     
@@ -465,19 +465,11 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
         course_id = int(self.kwargs['course_id'])
         
         load_date = Submission.objects.filter(assignment__course__course_id = course_id).order_by('created_at').first()
-        logging.warning("LOAD DATE:")
-        logging.warning(vars(load_date))
         if load_date is not None:
             context['load_date'] = load_date
             
             assignment_list = Assignment.objects.filter(course__course_id = course_id).all().order_by('name').values()
             student_list = Student.objects.filter(studentcourse__course__course_id = course_id).all().order_by('sortable_name').values()
-
-            logging.warning("ASSIGNMENT LIST:")
-            logging.warning(str(assignment_list))
-            logging.warning("STUDENT LIST:")
-            logging.warning(str(student_list))
-
             
             submissions = []
             for student in student_list:
