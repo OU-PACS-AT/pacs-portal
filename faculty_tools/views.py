@@ -316,7 +316,28 @@ class AssignmentListView(CurrentUserMixin, CCESearchView):
             assignment_name = assignment['name']             
             has_override = assignment['has_overrides']
             is_quiz = assignment['is_quiz_assignment']   
-            Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, course = course, has_override = has_override, is_quiz = is_quiz)
+            
+            td = timedelta (hours = 6)#adjust to local time      
+            if assignment['unlock_at'] is not None:
+                unlockCanvas = datetime.strptime(assignment['unlock_at'], '%Y-%m-%dT%H:%M:%SZ')#save in datetime object
+                unlockCanvas = unlockCanvas - td#adjust time.  else it goes past midnight altering the date
+                start_date = datetime.strftime(unlockCanvas, '%Y-%m-%d')#remove time and save just the date as a string
+            else: 
+                start_date = None
+            if assignment['due_at'] is not None:
+                dueCanvas = datetime.strptime(assignment['due_at'], '%Y-%m-%dT%H:%M:%SZ')
+                dueCanvas = dueCanvas - td
+                due_date = datetime.strftime(dueCanvas, '%Y-%m-%d')#saving date as string and in m/d/y for use with datepicker
+            else:
+                due_date = None
+            if assignment['lock_at'] is not None:
+                lockCanvas = datetime.strptime(assignment['lock_at'], '%Y-%m-%dT%H:%M:%SZ')                
+                lockCanvas = lockCanvas - td 
+                end_date = datetime.strftime(lockCanvas, '%Y-%m-%d')
+            else:
+                end_date = None
+            
+            Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, has_override = has_override, is_quiz = is_quiz, course = course)
         
         return super(AssignmentListView, self).get(request, *args, **kwargs)
  
@@ -433,8 +454,29 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
                 assignment_id = assignment['id']
                 assignment_name = assignment['name']             
                 has_override = assignment['has_overrides']
-                is_quiz = assignment['is_quiz_assignment']   
-                Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, course = course, has_override = has_override, is_quiz = is_quiz)
+                is_quiz = assignment['is_quiz_assignment']  
+                 
+                td = timedelta (hours = 6)#adjust to local time      
+                if assignment['unlock_at'] is not None:
+                    unlockCanvas = datetime.strptime(assignment['unlock_at'], '%Y-%m-%dT%H:%M:%SZ')#save in datetime object
+                    unlockCanvas = unlockCanvas - td#adjust time.  else it goes past midnight altering the date
+                    start_date = datetime.strftime(unlockCanvas, '%Y-%m-%d')#remove time and save just the date as a string
+                else: 
+                    start_date = None
+                if assignment['due_at'] is not None:
+                    dueCanvas = datetime.strptime(assignment['due_at'], '%Y-%m-%dT%H:%M:%SZ')
+                    dueCanvas = dueCanvas - td
+                    due_date = datetime.strftime(dueCanvas, '%Y-%m-%d')#saving date as string and in m/d/y for use with datepicker
+                else:
+                    due_date = None
+                if assignment['lock_at'] is not None:
+                    lockCanvas = datetime.strptime(assignment['lock_at'], '%Y-%m-%dT%H:%M:%SZ')                
+                    lockCanvas = lockCanvas - td 
+                    end_date = datetime.strftime(lockCanvas, '%Y-%m-%d')
+                else:
+                    end_date = None
+                
+                Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, has_override = has_override, is_quiz = is_quiz, course = course)
             
             student_list = api.get_students(course_id)
             for student in student_list:
@@ -463,12 +505,15 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
     def get_context_data(self, *args, **kwargs):
         context = super(SubmissionListView, self).get_context_data(*args, **kwargs) 
         course_id = int(self.kwargs['course_id'])
+        current_date = datetime.now()
         
+        last_past_assignment = Assignment.objects.filter(course__course_id = course_id, due_date__lte=current_date  ).order_by('-due_date', '-name').first()
         load_date = Submission.objects.filter(assignment__course__course_id = course_id).order_by('created_at').first()
         if load_date is not None:
             context['load_date'] = load_date
+            context['current_date'] = current_date
             
-            assignment_list = Assignment.objects.filter(course__course_id = course_id).all().order_by('name').values()
+            assignment_list = Assignment.objects.filter(course__course_id = course_id).all().order_by('due_date', 'name').values()
             student_list = Student.objects.filter(studentcourse__course__course_id = course_id).all().order_by('sortable_name').values()
             
             submissions = []
@@ -476,10 +521,15 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
                 temp = {}
                 temp['student'] = student
                 temp['assignments'] = []
-                for assignment in assignment_list:
+                for index, assignment in enumerate(assignment_list):
                     temp2 = list(Submission.objects.filter(student__canvas_id = student['canvas_id'], assignment__assignment_id = assignment['assignment_id']).values())
+                    
                     if temp2:
-                        temp['assignments'].append(temp2.pop())
+                        temp2 = temp2.pop()
+                        if temp2['assignment_id'] == last_past_assignment.id:
+                            temp2['latest_assignment'] = True
+                            assignment_list[index]['latest_assignment'] = True
+                        temp['assignments'].append(temp2)
                     else:
                         temp['assignments'].append({})
                 submissions.append(temp)
@@ -493,4 +543,7 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
         return self.model.objects.all().order_by('student_id' , 'assignment_id')
     
     
-    
+class PACSCourseRotation(CurrentUserMixin,CCETemplateView):
+    sidebar_group = ['faculty_tools', 'course_rotation']
+    template_name = 'course_rotation.html'
+    page_title = 'PACS Course Rotation'    

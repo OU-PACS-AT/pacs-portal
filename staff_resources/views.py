@@ -25,13 +25,6 @@ from forms import AnnouncementSimpleSearch, AnnouncementForm
 from models import Announcement
 
 
-class AnnouncementSearchView(CCESearchView):
-    def __init__(self, *args, **kwargs):
-        super(AnnouncementSearchView, self).__init__(*args, **kwargs)
-        from nucleus.auth import UserCredentials
-        creds = UserCredentials()
-        self.model.objects.filter(created_by = creds.get_OUNetID()).delete()
-
 class DashboardView(CurrentUserMixin, CCESearchView):
     sidebar_group = ['dashboard', ]
     template_name = 'dashboard.html'
@@ -41,7 +34,7 @@ class DashboardView(CurrentUserMixin, CCESearchView):
     success_message = "success"
     model = Announcement
     show_context_menu = True
-    paginate_by = 10
+    paginate_by = 14
     
     columns = [
         ('Title', 'name'),
@@ -52,18 +45,11 @@ class DashboardView(CurrentUserMixin, CCESearchView):
         ('Actions', 'short_school') ,       
     ]
     
-    
-    def get(self, request, *args, **kwargs):
-        creds = UserCredentials()
-        
-        return super(DashboardView, self).get(request, *args, **kwargs)
-        
     def get_queryset(self):
         return super(DashboardView, self).get_queryset()\
             .all().order_by('-last_updated_at' , 'name')
             
-            
-class AnounceCreateView(CurrentUserMixin, CCECreateView):
+class AnnouncementCreateView(CurrentUserMixin, CCECreateView):
     model = Announcement
     form_class = AnnouncementForm
     page_title = "Add Announcement!"
@@ -74,7 +60,7 @@ class AnounceCreateView(CurrentUserMixin, CCECreateView):
     def get_success_url(self):
         return reverse('dashboard')
     
-class AnounceUpdateView(CurrentUserMixin, CCEUpdateView):
+class AnnouncementUpdateView(CurrentUserMixin, CCEUpdateView):
     model = Announcement
     form_class = AnnouncementForm
     page_title = 'Edit Announcement'
@@ -84,8 +70,7 @@ class AnounceUpdateView(CurrentUserMixin, CCEUpdateView):
     def get_success_url(self):
         return reverse('dashboard')
 
-
-class AnounceDeleteView(CurrentUserMixin, CCEDeleteView):
+class AnnouncementDeleteView(CurrentUserMixin, CCEDeleteView):
     model = Announcement    
     page_title = 'Delete Announcement'    
     sidebar_group = ['dashboard', ]
@@ -93,11 +78,25 @@ class AnounceDeleteView(CurrentUserMixin, CCEDeleteView):
 
     def get_success_url(self):
         return reverse('dashboard')
+
+class AnnouncementDetailView(CurrentUserMixin, CCEDetailView):
+    model = Announcement
+    form_class = AnnouncementForm
+    page_title = 'Announcement Details'
+    sidebar_group = ['dashboard', ]    
+    detail_fields = [
+        ('Title', 'name'),
+        ('Body', 'body'),
+        ('Author', 'author'),
+        ('School', 'school'),
+        ('Created At', 'created_at'),
+        ('Created By', 'created_by'),
+        ('Last Updated At', 'last_updated_at'),
+        ('Last Updated By', 'last_updated_by'),
+    ]
+    show_context_menu = True
     
-class PACSCourseRotation(CurrentUserMixin,CCETemplateView):
-    sidebar_group = ['staff_resources', 'course_rotation']
-    template_name = 'course_rotation.html'
-    page_title = 'PACS Course Rotation'    
+
     
 class CourseWorkloadEstimator(CurrentUserMixin,CCETemplateView):
     sidebar_group = ['staff_resources', 'workload-estimator']
@@ -109,29 +108,9 @@ class LearningOutcomeGenerator(CurrentUserMixin,CCETemplateView):
     template_name = 'outcome-generator.html'
     page_title = 'Learning Outcome Generator'     
     
-class CropTool(CurrentUserMixin,CCETemplateView):
-    sidebar_group = ['staff_resources', 'crop_tool']
-    template_name = 'crop_tool.html'
-    page_title = 'Crop Tool'			
-        
-class ButtonMaker(CurrentUserMixin,CCETemplateView):
-    sidebar_group = ['staff_resources', 'button_maker']
-    template_name = 'button_maker.html'
-    page_title = 'Button Maker'		
-	
-class BannerMaker(CurrentUserMixin,CCETemplateView):
-    sidebar_group = ['staff_resources', 'banner_maker']
-    template_name = 'banner_maker.html'
-    page_title = 'Banner Maker'			
-       
 class ObjectiveBuilder(CurrentUserMixin,CCETemplateView):
     sidebar_group = ['staff_resources', 'objective_builder']
     template_name = 'objective_builder.html'
     page_title = 'Objective Builder'        
        
-class NewCourseTrello(CurrentUserMixin,CCETemplateView):
-    sidebar_group = ['staff_resources', 'new-course-trello']
-    template_name = 'new_course_template.html'
-    page_title = 'Trello Boards'    
-      
        

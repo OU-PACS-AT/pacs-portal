@@ -32,7 +32,12 @@
 					<i class="glyphicon glyphicon-refresh"></i> 
 						Reload?
 				</a>
-            	<span>Data loaded on: <mark>{{ load_date.created_at|localtime }}</mark> by <i>{{ load_date.created_by }}</i></span>
+            	<span>Data loaded on: <span class="highlight">{{ load_date.created_at|localtime }}</span> by <i>{{ load_date.created_by }}</i></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+            	<span>Current Date: <i>{{ current_date|localtime }}</i></span>
             </div>
         </div>
         <br>
@@ -63,7 +68,15 @@
 	                        <tr>
 	                    		<th class="col-sm-"></th>
 	                            {% for assignment in assignments %}
-	                                <th class="col-sm-{{ assignment.1 }}">{{ assignment.name }}</th>
+	                            	{% if assignment.latest_assignment %}
+	                                	<th class="col-sm-{{ assignment.1 }} highlight">
+	                                		{% include "pacs_tags/text_w_tooltip.html" with text=assignment.name tooltiptext=assignment.due_date %}
+	                                	</th>
+	                                {% else %}
+	                                	<th class="col-sm-{{ assignment.1 }}">
+											{% include "pacs_tags/text_w_tooltip.html" with text=assignment.name tooltiptext=assignment.due_date %}
+	                                	</th>
+	                                {% endif %}
 	                            {% endfor %}
 	                        </tr>
 	                    </thead>
@@ -72,15 +85,20 @@
 	                <tr>
 	                	<td>{{ student.student.sortable_name }}</td>
 	                    {% for assignment in student.assignments %}
-	                    <td>
-	                     {% if assignment.late %}
-	                     	{% include "pacs_tags/icon_w_tooltip.html" with icon_class="late_icon fa fa-clock-o" tooltiptext="Late" %}
-	                     {% elif assignment.submitted %}
-	                     	{% include "pacs_tags/icon_w_tooltip.html" with icon_class="true_icon fa fa-check" tooltiptext="Submitted" %}
-	                     {% else %}
-	                     	{% include "pacs_tags/icon_w_tooltip.html" with icon_class="false_icon fa fa-times" tooltiptext="Not Submitted" %}
-	                     {% endif %}
-	                 </td>
+	                        {% if assignment.latest_assignment %}
+	                        	<td class="highlight">
+							{% else %}
+								<td>
+							{% endif %}
+
+							{% if assignment.late %}
+		                     	{% include "pacs_tags/icon_w_tooltip.html" with icon_class="late_icon fa fa-clock-o" tooltiptext="Late" %}
+							{% elif assignment.submitted %}
+		                     	{% include "pacs_tags/icon_w_tooltip.html" with icon_class="true_icon fa fa-check" tooltiptext="Submitted" %}
+							{% else %}
+		                     	{% include "pacs_tags/icon_w_tooltip.html" with icon_class="false_icon fa fa-times" tooltiptext="Not Submitted" %}
+							{% endif %}
+			                </td>
 	                    {% endfor %}
 	                </tr>
 	            {% if forloop.last %}

@@ -1,7 +1,10 @@
 import logging
 
+import urllib, sys
+
 from crequest.middleware import CrequestMiddleware
 from nucleus import settings
+from HTMLParser import HTMLParser
 
 class UserCredentials():
     
@@ -16,6 +19,7 @@ class UserCredentials():
     SimpleSAMLAuthToken = None
     
     def __init__(self):
+        h = HTMLParser()
         request = CrequestMiddleware.get_request()
         
         if request is None:
@@ -35,12 +39,12 @@ class UserCredentials():
             self.SimpleSAML = request.COOKIES["SimpleSAML"]
             self.SimpleSAMLAuthToken = request.COOKIES["SimpleSAMLAuthToken"]
     
-            self.OUNetID = request.COOKIES["OUNetID"]
-            self.FirstName = request.COOKIES["FirstName"]
-            self.LastName = request.COOKIES["LastName"]
-            self.Email = request.COOKIES["Email"]
+            self.OUNetID = urllib.unquote(request.COOKIES["OUNetID"]) if ("OUNetID" in request.COOKIES) else "" 
+            self.FirstName = urllib.unquote(request.COOKIES["FirstName"]) if ("FirstName" in request.COOKIES) else "" 
+            self.LastName = urllib.unquote(request.COOKIES["LastName"]) if ("LastName" in request.COOKIES) else ""
+            self.Email = urllib.unquote(request.COOKIES["Email"]) if ("Email" in request.COOKIES) else ""
             
-            groups = request.COOKIES["MemberOf"]
+            groups = urllib.unquote(request.COOKIES["MemberOf"]) 
             self.MemberOf = groups.split(":")
 
         
@@ -68,27 +72,18 @@ class UserCredentials():
     def get_MemberOf(self):
         return self.MemberOf
     
-    def is_staff(self):
-        if any("Staff" in s for s in self.MemberOf):
-            return True
-        else :
-            return False
-        
-    def is_faculty(self):
-        if any("Faculty" in s for s in self.MemberOf):
-            return True
-        else :
-            return False
-        
-    def is_student(self):
-        if any("Student" in s for s in self.MemberOf):
-            return True
-        else :
-            return False
-
+    def is_member(self, groups):
+        result = False
+        if isinstance(groups, list):
+            if any(group in groups for group in self.MemberOf):
+                result = True
+        else:
+            if any(groups == s for s in self.MemberOf):
+                result = True
+        return result
 
     def is_admin(self):
-        if any(self.OUNetID in s for s in settings.ADMINS):
+        if any("PACSATAdmin" in s for s in self.MemberOf):
             return True
         else :
             return False

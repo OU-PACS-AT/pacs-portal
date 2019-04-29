@@ -27,6 +27,8 @@ urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
               + [
                     url(r'^admin', include(admin.site.urls)),
                   
+                    url(r'^st/', include("staff_tools.urls")),
+                  
                     # Faculty Tools                 
                     url(r'^ft/', include("faculty_tools.urls")),
 
@@ -37,8 +39,8 @@ urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
                     #    Should be commented out before commited
                     
                     # Sample CCE-IT Toolkit apps
-                    #url(r'^p/', include("tasks.urls")),
-                    #url(r'^b/', include("boards.urls")),
+                    url(r'^p/', include("tasks.urls")),
+                    url(r'^b/', include("boards.urls")),
 
                      
                     # Default 

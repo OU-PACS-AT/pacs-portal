@@ -163,6 +163,7 @@ class CanvasAPI():
         
     def get_canvasID(self, OUNetID):
         api_response = self.get('/accounts/%s/users?search_term=%s' % (self.SUB_ACCOUNT, OUNetID), single=True)
+        canvasID = None
         for user in api_response:
             canvasID = user['id']
         return canvasID

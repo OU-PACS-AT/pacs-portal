@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.core.urlresolvers import reverse
 from pickle import FALSE
 from datetime import datetime, timedelta, tzinfo, date, time
 from nucleus.models import PACSModel
@@ -74,13 +75,13 @@ class Announcement(PACSModel):
     def get_short_school(self):
         return self.short_school
         
-    
     def save(self,*args,**kwargs):
-        
         creds = UserCredentials()
         self.author = creds.get_FirstName() + " " + creds.get_LastName()
-        
         self.short_school = self.fillshort()
-            
         return super(Announcement, self).save(*args, **kwargs)
+    
+    def get_absolute_url(self):
+        return reverse('view_announcement', kwargs={'pk': self.pk})
+
     

@@ -47,7 +47,7 @@ class PACSModel(models.Model):
         return localtime(self.created_at)
 
     def __unicode__(self):
-        return u'/s/%s' % self.name
+        return u'%s' % self.name
 
     def is_owner(self, user_obj):
         creds = UserCredentials()

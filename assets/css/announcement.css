@@ -10,14 +10,14 @@ td {
 
 .atable {
 	
-	width: 70%;
+	width: 60%;
 	float: left; 
 	padding: 3px; 
 }
 
 iframe {
 	
-	width: 30%; 
+	width: 40%; 
 	float: right; 
 	padding: 0px;
 	frameborder: 0;
@@ -95,4 +95,18 @@ td:nth-child(6){
 
 	display: none !important;
 	
+}
+
+.announcement_tr td:first-child {
+	max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.announcement_tr td:nth-child(2) {
+	max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

@@ -1,4 +1,6 @@
 {% extends "list.html" %}
+
+
 {% load bootstrap_tags pagination %}
 
 {% block action_buttons %}
@@ -36,7 +38,6 @@
         </div>
     {% endif %}
     
-    
     <div >
     
     <div class = "atable"  data-popover="popover_{{ forloop.parentloop.counter0 }}">
@@ -59,7 +60,7 @@
                     </thead>
                     <tbody>
             {% else %}
-            			<tr class = "{{ row.5 }}">
+            			<tr class = "{{ row.5 }} announcement_tr">
             			
             			{% for item in row %}
                                {% if forloop.last and not disable_actions_column %}
@@ -90,7 +91,7 @@
     
     </div>
     
-    <div ><iframe src="https://calendar.google.com/calendar/embed?src=ouclsat%40gmail.com&ctz=America%2FChicago" ></iframe></div>
+    <div ><iframe src="https://outlook.office365.com/owa/calendar/d480f9f243d044c6832db00aba747f6f@ou.edu/f8b0ff9348ad43c8b98afccce48773067555587851909825335/calendar.html" ></iframe></div>
     
     </div>
     

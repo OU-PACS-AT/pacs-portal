@@ -2,7 +2,7 @@
 from django.conf.urls import url, include
 
 # Nucleus imports
-from nucleus.decorators import is_staff, is_faculty, is_faculty_or_staff, is_student, is_admin
+from nucleus.decorators import is_admin, is_member
 
 # View imports
 from canvas.views import AdminCourseListView, CourseListView, StudentListView, SubaccountListView, TermListView
@@ -10,10 +10,10 @@ from canvas.views import AssignmentListView, StudentCourseListView
 
 urlpatterns = [
 
-    url(r'^course/$', is_faculty_or_staff(CourseListView.as_view()),
+    url(r'^course/$', is_member(CourseListView.as_view(), ["PACSATAdvising"]),
         name='canvas_course_list'),
 
-    url(r'^admincourse/$', is_faculty_or_staff(AdminCourseListView.as_view()),
+    url(r'^admincourse/$', is_admin(AdminCourseListView.as_view()),
         name='canvas_admincourse_list'),
 
     url(r'^student/$', is_admin(StudentListView.as_view()),
