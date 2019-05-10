@@ -11,9 +11,6 @@ import pytz
 from nucleus.auth import UserCredentials
 
 
-class Schools(models.Model):
-    name = models.CharField(max_length=50)
-    
 class Announcement(PACSModel):
     name = models.CharField(max_length=50)
     body = models.TextField()

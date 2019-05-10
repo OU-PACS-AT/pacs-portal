@@ -13,7 +13,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <title>
-            {% if server_type != 'PROD' %} {{ server_type }} - {% endif %} PACS - {% block page_title %}{{ page_title }}{% endblock page_title %}
+            {% if server_type != 'PROD' and server_type != '' %} {{ server_type }} - {% endif %} PACS - {% block page_title %}{{ page_title }}{% endblock page_title %}
         </title>
         {% include 'header.html' %}
 
@@ -55,6 +55,11 @@
 			            <a href="#" style="float:left;">
 			                <i class="fa fa-user fa-fw"></i> Hello, {{ user_full_name }} 
 			            </a>
+			            {% if user_is_admin %}
+				            <a href="{% url 'admin:index' %}" class="btn btn-lg" style="float:left; font-size:14px;">
+	          					<span class="glyphicon glyphicon-cog"></span>
+	        				</a>
+        				{% endif %}
 			            <a href="/simplesaml/module.php/core/as_logout.php?AuthId=default-sp&amp;ReturnTo=https%3A%2F%2Fsso.ou.edu/ext/logmeout" class="btn btn-lg" style="float:left; font-size:14px;">
           					<span class="glyphicon glyphicon-log-out"></span> Log out
         				</a>
