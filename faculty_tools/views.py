@@ -547,3 +547,9 @@ class PACSCourseRotation(CurrentUserMixin,CCETemplateView):
     sidebar_group = ['faculty_tools', 'course_rotation']
     template_name = 'course_rotation.html'
     page_title = 'PACS Course Rotation'    
+    
+class PACSCourseSME(CurrentUserMixin,CCETemplateView):
+    sidebar_group = ['faculty_tools', 'course_sme']
+    template_name = 'course_sme.html'
+    page_title = 'PACS Course SME'   
+    
