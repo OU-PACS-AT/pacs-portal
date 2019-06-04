@@ -186,14 +186,22 @@ class CanvasAPI():
     def get_course_groups(self, course_id):
         return self.get('/courses/%s/groups' % course_id)
 
-    def get_assignment(self, course_id, assignment_id):
-        return self.get('/courses/%s/assignments/%s' % (course_id, assignment_id), single=True)    
+    def get_assignment(self, course_id, assignment_id, override_assignment_dates = False):
+        if override_assignment_dates:
+            result = self.get('/courses/%s/assignments/%s?override_assignment_dates=true' % (course_id, assignment_id), single=True)    
+        else:
+            result = self.get('/courses/%s/assignments/%s?override_assignment_dates=false' % (course_id, assignment_id), single=True) 
+        return result    
     
     def get_submissions(self, course_id):
         return self.get('/courses/%s/students/submissions?student_ids[]=all' % (course_id))   
 
-    def get_assignments(self, course_id):
-        return self.get('/courses/%s/assignments' % course_id)
+    def get_assignments(self, course_id, override_assignment_dates = False):
+        if override_assignment_dates:
+            result = self.get('/courses/%s/assignments?override_assignment_dates=true' % course_id)
+        else:
+            result = self.get('/courses/%s/assignments?override_assignment_dates=false' % course_id) 
+        return result
     
     def get_students(self, course_id):
         return self.get('/courses/%s/students' % course_id)

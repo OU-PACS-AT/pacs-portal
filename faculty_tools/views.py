@@ -33,7 +33,7 @@ class CourseListView(CurrentUserMixin, CCESearchView):
         ('Course ID', 'course_id'),
         ('Name', 'name'),
     ]
-    paginate_by = 5
+    paginate_by = 20
     show_context_menu = False
 
     def get(self, request, *args, **kwargs):
@@ -155,7 +155,8 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
             json_data = api.get_assignments(course_id)
             json_list = list(json_data) #the data from canvas
 
-        for assignment in json_list:   #get the stuff i need from the canvas data             
+        
+        for assignment in json_list:   #get the stuff i need from the canvas data
             assignment_id = assignment['id']
             assignment_name = assignment['name']    
             is_quiz = assignment['is_quiz_assignment']
@@ -299,7 +300,7 @@ class AssignmentListView(CurrentUserMixin, CCESearchView):
         ('Assignment ID', 'assignment_id'),
         ('Assignment Name', 'name'),
     ]
-    paginate_by = 5
+    paginate_by = 20
     show_context_menu = False
 
     def get(self, request, *args, **kwargs):
@@ -372,7 +373,7 @@ class StudentListView(CurrentUserMixin, CCESearchView):
         ('Student ID', 'canvas_id'),
         ('Student Name', 'name'),
     ]
-    paginate_by = 5
+    paginate_by = 20
     show_context_menu = False
 
     def get(self, request, *args, **kwargs):
@@ -380,16 +381,16 @@ class StudentListView(CurrentUserMixin, CCESearchView):
         StudentCourse.objects.filter(course__course_id = course_id).delete()
         course = CanvasCourse.objects.filter(course_id = course_id).first()
         api = CanvasAPI()
-        course_id = self.kwargs['course_id']
         assignment_id = self.kwargs['assignment_id']
         
         json_data = api.get_students(course_id)
         json_list = list(json_data) #the data from canvas
 
-        for student_record in json_list:   #get the stuff i need from the canvas data             
+        for student_record in json_list:   #get the stuff i need from the canvas data
             student_id = student_record['id']
             student = Student.objects.filter(canvas_id = int(student_id)).first()
-            StudentCourse.user_objects.create(student = student, course = course)
+            if student is not None:
+                StudentCourse.user_objects.create(student = student, course = course)
         
         return super(StudentListView, self).get(request, *args, **kwargs)
 
