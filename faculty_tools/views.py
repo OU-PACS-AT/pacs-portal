@@ -527,7 +527,7 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
                     
                     if temp2:
                         temp2 = temp2.pop()
-                        if temp2['assignment_id'] == last_past_assignment.id:
+                        if last_past_assignment and temp2['assignment_id'] == last_past_assignment.id:
                             temp2['latest_assignment'] = True
                             assignment_list[index]['latest_assignment'] = True
                         temp['assignments'].append(temp2)
