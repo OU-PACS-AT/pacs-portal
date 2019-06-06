@@ -83,7 +83,7 @@ class CourseAdmin(admin.ModelAdmin):
         
         course_list = api.get_courses_by_term()
         for course in course_list:
-            subaccount = SubAccount.objects.filter(subaccount_id = course['account_id']).first()
+            subaccount = Subaccount.objects.filter(subaccount_id = course['account_id']).first()
             course_create = self.model.objects.create(course_id = course['id'], name = course['name'], course_code = course['course_code'], term = term, subaccount = subaccount)
             course_create.save()
             
