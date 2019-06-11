@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from nucleus.mixins import CurrentUserMixin
 from nucleus.auth import UserCredentials
 from nucleus.api import CanvasAPI
+from nucleus import settings
 
 # Toolkit views
 from toolkit.views import CCECreateView, CCECreateWithInlinesView, CCEDeleteView, CCEDetailView, \
@@ -20,11 +21,11 @@ import requests
 
 # Form imports
 from faculty_tools.forms import CourseSimpleSearch, AssignmentDatesForm, AssignmentSimpleSearch, StudentSimpleSearch, SubmissionSimpleSearch
-from faculty_tools.models import Course, Assignment, Submission, StudentCourse
-from canvas.models import Course as CanvasCourse, Student
+from faculty_tools.models import Assignment, Submission, StudentCourse
+from canvas.models import Course as CanvasCourse, Student, Subaccount, Term
 
 class CourseListView(CurrentUserMixin, CCESearchView):
-    model = Course
+    model = CanvasCourse
     page_title = 'Course List'
     search_form_class = CourseSimpleSearch
     success_message = "success"
@@ -38,19 +39,38 @@ class CourseListView(CurrentUserMixin, CCESearchView):
 
     def get(self, request, *args, **kwargs):
         creds = UserCredentials()
-        self.model.user_objects.all().delete()
         api = CanvasAPI()
+        
         canvasID = api.get_canvasID(creds.get_OUNetID())
         api_response = api.get_class_by_teacher(canvasID)
         api_list = list(api_response)
+        
         for course in api_list:
-            course_id = course['id']
-            course_name = course['name']
-            course_create = Course.user_objects.create(course_id = course_id, name = course_name)
+            course_id = int(course['id'])
+            course_found = self.model.objects.filter(course_id = course_id).first() 
+
+            if course_found is None:
+                term_id = settings.CURRENT_TERM
+                term = Term.objects.filter(term_id = term_id).first() 
+                subaccount = Subaccount.objects.filter(subaccount_id = course['account_id']).first()
+                course_create = self.model.objects.create(course_id = course_id, name = course['name'], course_code = course['course_code'], term = term, subaccount = subaccount)
+                course_create.save()
+
         return super(CourseListView, self).get(request, *args, **kwargs)
     
     def get_queryset(self):
-        return self.model.user_objects.all()
+        creds = UserCredentials()
+        api = CanvasAPI()
+
+        canvasID = api.get_canvasID(creds.get_OUNetID())
+        api_response = api.get_class_by_teacher(canvasID)
+        api_list = list(api_response)
+        
+        course_ids = []
+        for course in api_list:
+            course_ids.append(int(course['id']))
+
+        return self.model.objects.filter(course_id__in =course_ids)
     
     def render_buttons(self, user, obj, *args, **kwargs):
         buttons = super(CourseListView, self).render_buttons(user, obj,
@@ -115,11 +135,10 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
     def get(self, request, *args, **kwargs):
         creds = UserCredentials()
         api = CanvasAPI()
-        
+
         course_id = int(self.kwargs['course_id'])
-        self.model.objects.filter(course__course_id = course_id).delete()
         course = CanvasCourse.objects.filter(course_id = course_id).first()
-        
+
         api.is_teacher_of_course(course_id, creds.get_OUNetID())
         if not api.is_teacher_of_course(course_id, creds.get_OUNetID()):
             raise PermissionDenied
@@ -181,8 +200,12 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
                 end_date = datetime.strftime(lockCanvas, '%Y-%m-%d')
             else:
                 end_date = None
-                                
-            Assignment.user_objects.create(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, has_override = has_override, is_quiz = is_quiz, course = course)
+            
+            assignment_record = self.model.objects.filter(assignment_id = assignment_id)
+            if assignment_record is None:
+                self.model.objects.create(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, has_override = has_override, is_quiz = is_quiz, course = course)
+            else:
+                assignment_record.update(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, has_override = has_override, is_quiz = is_quiz, course = course)
             
         return super(EditDueDates, self).get(request, *args, **kwargs)
         
@@ -192,7 +215,6 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
         
     def get_context_data(self, *args, **kwargs): 
         course_id = int(self.kwargs['course_id'])
-
         if ('assignment_id' in self.kwargs and 'student_id' in self.kwargs):
             self.assignment_id = self.kwargs['assignment_id']
             self.student_id = self.kwargs['student_id']
@@ -211,7 +233,7 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
                 data['student_name'] = api.get_user(self.student_id)['name']
             data['is_override_create'] = True
         data['course_id'] = course_id
-        data['course_name'] = Course.objects.filter(course_id = course_id).first()
+        data['course_name'] = CanvasCourse.objects.filter(course_id = course_id).first()
         if not data['course_name']:
             data['course_name'] = api.get_courses(course_id)['name']
             

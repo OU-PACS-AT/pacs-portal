@@ -33,7 +33,8 @@ class PACSModel(models.Model):
     def save(self, *args, **kwargs):
         creds = UserCredentials()
         self.last_updated_by = creds.get_OUNetID()
-        self.created_by = creds.get_OUNetID()
+        if self.created_by is None:
+            self.created_by = creds.get_OUNetID()
         return super(PACSModel,self).save(*args, **kwargs)
         
     @property
@@ -54,8 +55,7 @@ class PACSModel(models.Model):
         return self.created_by == creds.get_OUNetID() 
 
     def can_update(self, user_obj):
-        creds = UserCredentials()
-        return self.created_by == creds.get_OUNetID() or creds.is_admin()
+        return True
 
     def can_delete(self, user_obj):
         creds = UserCredentials()

@@ -7,17 +7,6 @@ from django.db import models
 from nucleus.models import PACSModel
 from canvas.models import Student, Course as CanvasCourse
 
-class Course(PACSModel):
-    course_id = models.IntegerField()
-    name = models.CharField(max_length = 100)
-    
-
-    def __unicode__(self):
-        return u'{0}'.format(self.name)
-
-    def get(self):
-        return self.class_name
-
 class Assignment(PACSModel):
     assignment_id = models.IntegerField(unique = True)
     name = models.CharField(max_length = 500, null=True)

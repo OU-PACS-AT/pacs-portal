@@ -9,7 +9,8 @@ from datetime import datetime, timedelta, tzinfo, date, time
 from toolkit.forms import CCESimpleSearchForm, CCEModelSearchForm, CCEModelForm
 
 # Models
-from models import Course, Assignment, Student, Submission
+from models import Assignment, Student, Submission
+from canvas.models import Course as CanvasCourse
 import logging
 
 
@@ -17,7 +18,7 @@ class CourseSimpleSearch(CCESimpleSearchForm):
     search_placeholder = 'Search Courses'
 
     class Meta(CCESimpleSearchForm.Meta):
-        model = Course
+        model = CanvasCourse
         field_lookups = {'search': ('id__icontains',
                                     'name__icontains')}
         
