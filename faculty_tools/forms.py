@@ -80,17 +80,24 @@ class AssignmentDatesForm(forms.ModelForm):
             )
         else:
             if start_date > due_date:
-                logging.warning("ERROR: start_date > due_date")
+                #logging.warning("ERROR: start_date > due_date")
                 errors += forms.ValidationError( 
                     _('Start Date: %(start_date)s must come before Due Date: %(due_date)s'),
                     params={'start_date': datetime.strftime(start_date, '%m/%d/%Y'),
-                            'due_date': datetime.strftime(end_date, '%m/%d/%Y'),},
+                            'due_date': datetime.strftime(due_date, '%m/%d/%Y'),},
                     )
             if due_date > end_date:
-                logging.warning("ERROR: due_date > end_date")
+                #logging.warning("ERROR: due_date > end_date")
                 errors += forms.ValidationError(
                     _('Due Date: %(due_date)s must come before End Date: %(end_date)s'),
                     params={'due_date': datetime.strftime(due_date, '%m/%d/%Y'),
+                            'end_date': datetime.strftime(end_date, '%m/%d/%Y'),},
+                    )
+            if start_date > end_date:
+                #logging.warning("ERROR: start_date > end_date")
+                errors += forms.ValidationError(
+                    _('Start Date: %(start_date)s must come before End Date: %(end_date)s'),
+                    params={'start_date': datetime.strftime(start_date, '%m/%d/%Y'),
                             'end_date': datetime.strftime(end_date, '%m/%d/%Y'),},
                     )
         if errors:
