@@ -1,6 +1,0 @@
-nucleus/settings.py
-*.pyc
-boards/*
-tasks/*
-*migrations*
-
