@@ -401,6 +401,11 @@ iframe {
 	height: 800px;
 }
 
+.help_section iframe{
+	width: 640px !important;
+	height: 360px !important;
+}
+
 
 /* Will 11-29-2018 */
 .far, .fas, .fab {

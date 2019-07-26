@@ -34,6 +34,9 @@ urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
 
                     # Canvas Lists
                     url(r'^c/', include("canvas.urls")),
+                    
+                    # Help
+                    url(r'^h/', include("help.urls")),
                   
                     # Apps for development purposes only.
                     #    Should be commented out before commited
