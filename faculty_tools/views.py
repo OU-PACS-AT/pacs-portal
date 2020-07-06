@@ -174,7 +174,6 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
             json_data = api.get_assignments(course_id)
             json_list = list(json_data) #the data from canvas
 
-        
         for assignment in json_list:   #get the stuff i need from the canvas data
             assignment_id = assignment['id']
             assignment_name = assignment['name']    
@@ -202,7 +201,7 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
                 end_date = None
             
             assignment_record = self.model.objects.filter(assignment_id = assignment_id)
-            if assignment_record is None:
+            if assignment_record is None or not assignment_record:
                 self.model.objects.create(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, has_override = has_override, is_quiz = is_quiz, course = course)
             else:
                 assignment_record.update(assignment_id = assignment_id, name = assignment_name, start_date = start_date, due_date = due_date, end_date = end_date, has_override = has_override, is_quiz = is_quiz, course = course)
