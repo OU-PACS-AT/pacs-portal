@@ -9,10 +9,19 @@ from datetime import datetime, timedelta, tzinfo, date, time
 from toolkit.forms import CCESimpleSearchForm, CCEModelSearchForm, CCEModelForm
 
 # Models
-from models import Course, Student, Term, Subaccount
-from faculty_tools.models import Assignment, StudentCourse
+from models import Course, User, Term, Subaccount, UserCourse
+from models import TeacherWeeklyReport, TeacherWeeklyReportAssignments, TeacherWeeklyReportDiscussions
+from faculty_tools.models import Assignment
 
 import logging
+
+class TeacherWeeklyReportSimpleSearchForm(CCESimpleSearchForm):
+    search_placeholder = 'Search Reports'
+
+    class Meta(CCESimpleSearchForm.Meta):
+        model = TeacherWeeklyReport
+        field_lookups = {'search': ('usercourse__course__name__icontains',
+                                    'usercourse__user__name__icontains')}
 
 class CourseSimpleSearchForm(CCESimpleSearchForm):
     search_placeholder = 'Search Courses'
@@ -48,16 +57,17 @@ class CourseAdvancedSearchForm(CCEModelSearchForm):
             'term': 'Term',
         }
 
-class StudentSimpleSearchForm(CCESimpleSearchForm):
-    search_placeholder = 'Search Students'
+class UserSimpleSearchForm(CCESimpleSearchForm):
+    search_placeholder = 'Search Users'
 
     class Meta(CCESimpleSearchForm.Meta):
-        model = Student
+        model = User
         field_lookups = {'search': ('canvas_id__icontains',
                                     'name__icontains',
                                     'sortable_name__icontains',
                                     'sis_user_id__icontains',
                                     'login_id__icontains')}
+
 
 class TermSimpleSearchForm(CCESimpleSearchForm):
     search_placeholder = 'Search Terms'
@@ -106,33 +116,34 @@ class AssignmentAdvancedSearchForm(CCEModelSearchForm):
             'course': 'Course',
         }
         
-class StudentCourseSimpleSearchForm(CCESimpleSearchForm):
-    search_placeholder = 'Search Student/Course Mapping'
+class UserCourseSimpleSearchForm(CCESimpleSearchForm):
+    search_placeholder = 'Search User/Course Mapping'
 
     class Meta(CCESimpleSearchForm.Meta):
-        model = StudentCourse
-        field_lookups = {'search': ('student__name__icontains',
+        model = UserCourse
+        field_lookups = {'search': ('user__name__icontains',
                                     'course__name__icontains',
                                     'course__course_code__icontains',
-                                    'student__sortable_name__icontains',
-                                    'student__sis_user_id__icontains',
-                                    'student__login_id__icontains')}  
-        
-class StudentCourseAdvancedSearchForm(CCEModelSearchForm):
+                                    'user__sortable_name__icontains',
+                                    'user__sis_user_id__icontains',
+                                    'user__login_id__icontains')}  
+
+class UserCourseAdvancedSearchForm(CCEModelSearchForm):
 
     class Meta:
-        model = StudentCourse
+        model = UserCourse
         field_lookups = {
-            'student': ('student__name__icontains', 'student__sortable_name__icontains'),
+            'user': ('user__name__icontains', 'user__sortable_name__icontains'),
             'course': ('course__course_code__icontains', 'course__name__icontains', 'course__course_id__icontains'),
         }
 
         fields = (
-            'student',
+            'user',
             'course',
         )
 
         labels = {
-            'student': 'Student',
+            'user': 'User',
             'course': 'Course',
         }
+

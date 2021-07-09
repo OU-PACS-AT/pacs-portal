@@ -69,3 +69,49 @@ class PACSModel(models.Model):
 
     def can_view(self, user_obj):
         return True
+    
+   
+class ReportModel(models.Model):
+    """
+    Abstract model with fields for the user and timestamp of a row's creation
+    and last update.
+    .. note:: - 
+    """
+    last_updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+    
+    class Meta:
+        abstract = True
+    
+    def save(self, *args, **kwargs):
+        return super(ReportModel,self).save(*args, **kwargs)
+        
+    @property
+    def tz_last_updated_at(self):
+        from django.utils.timezone import localtime
+        return localtime(self.last_updated_at)
+    
+    @property
+    def tz_created_at(self):
+        from django.utils.timezone import localtime
+        return localtime(self.created_at)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    def can_update(self, user_obj):
+        return True
+
+    def can_delete(self, user_obj):
+        return True
+
+    def can_create(self, user_obj):
+        return True
+
+    def can_view_list(self, user_obj):
+        return True
+
+    def can_view(self, user_obj):
+        return True
+    

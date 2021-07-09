@@ -20,9 +20,9 @@ import logging
 import requests
 
 # Form imports
-from faculty_tools.forms import CourseSimpleSearch, AssignmentDatesForm, AssignmentSimpleSearch, StudentSimpleSearch, SubmissionSimpleSearch
-from faculty_tools.models import Assignment, Submission, StudentCourse
-from canvas.models import Course as CanvasCourse, Student, Subaccount, Term
+from faculty_tools.forms import CourseSimpleSearch, AssignmentDatesForm, AssignmentSimpleSearch, UserSimpleSearch, SubmissionSimpleSearch
+from faculty_tools.models import Assignment, Submission
+from canvas.models import Course as CanvasCourse, User, Subaccount, Term, UserCourse
 
 class CourseListView(CurrentUserMixin, CCESearchView):
     model = CanvasCourse
@@ -50,7 +50,7 @@ class CourseListView(CurrentUserMixin, CCESearchView):
             course_found = self.model.objects.filter(course_id = course_id).first() 
 
             if course_found is None:
-                term_id = settings.CURRENT_TERM
+                term_id = api.TERM
                 term = Term.objects.filter(term_id = term_id).first() 
                 subaccount = Subaccount.objects.filter(subaccount_id = course['account_id']).first()
                 course_create = self.model.objects.create(course_id = course_id, name = course['name'], course_code = course['course_code'], term = term, subaccount = subaccount)
@@ -227,7 +227,7 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
             if not data['assignment_name']:
                 data['assignment_name'] = api.get_assignment(course_id, self.assignment_id)['name']
             data['student_id'] = self.student_id
-            data['student_name'] = Student.objects.filter(canvas_id = self.student_id).first()
+            data['student_name'] = User.objects.filter(canvas_id = self.student_id).first()
             if not data['student_name']:
                 data['student_name'] = api.get_user(self.student_id)['name']
             data['is_override_create'] = True
@@ -385,9 +385,9 @@ class AssignmentListView(CurrentUserMixin, CCESearchView):
     
     
 class StudentListView(CurrentUserMixin, CCESearchView):
-    model = Student
+    model = User
     page_title = 'Student List'
-    search_form_class = StudentSimpleSearch
+    search_form_class = UserSimpleSearch
     success_message = "success"
     sidebar_group = ['faculty_tools', 'course_list']
     columns = [
@@ -399,7 +399,7 @@ class StudentListView(CurrentUserMixin, CCESearchView):
 
     def get(self, request, *args, **kwargs):
         course_id = int(self.kwargs['course_id'])
-        StudentCourse.objects.filter(course__course_id = course_id).delete()
+        UserCourse.objects.filter(course__course_id = course_id).delete()
         course = CanvasCourse.objects.filter(course_id = course_id).first()
         api = CanvasAPI()
         assignment_id = self.kwargs['assignment_id']
@@ -409,15 +409,17 @@ class StudentListView(CurrentUserMixin, CCESearchView):
 
         for student_record in json_list:   #get the stuff i need from the canvas data
             student_id = student_record['id']
-            student = Student.objects.filter(canvas_id = int(student_id)).first()
+            student = User.objects.filter(canvas_id = int(student_id)).first()
             if student is not None:
-                StudentCourse.user_objects.create(student = student, course = course)
+                usercourse = UserCourse.objects.filter(course = course).filter(user = student).first()
+                if usercourse is None:
+                    UserCourse.user_objects.create(user = student, course = course)
         
         return super(StudentListView, self).get(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
         course_id = int(self.kwargs['course_id'])
-        results = self.model.objects.filter(studentcourse__course__course_id = course_id).all()
+        results = self.model.objects.filter(usercourse__course__course_id = course_id).all()
         return results
 
     def render_buttons(self, user, obj, *args, **kwargs):
@@ -442,7 +444,7 @@ class StudentListView(CurrentUserMixin, CCESearchView):
 class SubmissionListView(CurrentUserMixin, CCESearchView):
     model = Submission
     page_title = 'Submissions List'
-    search_form_class = StudentSimpleSearch
+    search_form_class = UserSimpleSearch
     success_message = "success"
     template_name = 'submissions_template.html'
     sidebar_group = ['faculty_tools', 'canvas_course_list']
@@ -467,7 +469,7 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
             # Delete existing data
             self.model.objects.filter(assignment__course = course).all().delete()
             Assignment.objects.filter(course = course).all().delete()
-            StudentCourse.objects.filter(course = course).all().delete()
+            UserCourse.objects.filter(course = course).all().delete()
              
             json_data = api.get_assignments(course_id)
             json_list = list(json_data) #the data from canvas
@@ -502,16 +504,18 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
             
             student_list = api.get_students(course_id)
             for student in student_list:
-                localstudent = Student.objects.filter(canvas_id = int(student['id'])).first()
+                localstudent = User.objects.filter(canvas_id = int(student['id'])).first()
                 if localstudent is not None:
-                    StudentCourse.user_objects.create(student = localstudent, course = course) 
+                    usercourse = UserCourse.objects.filter(course = course).filter(user = localstudent).first()
+                    if usercourse is None:
+                        UserCourse.user_objects.create(user = localstudent, course = course) 
             
             json_data = api.get_submissions(course_id)
             json_list = list(json_data) #the data from canvas
             
             for sub in json_list:
                 student_id = sub['user_id']
-                student = Student.objects.filter(canvas_id = student_id).first()
+                student = User.objects.filter(canvas_id = student_id).first()
                 
                 assignment_id = sub['assignment_id']
                 assignment = Assignment.objects.filter(assignment_id = assignment_id).first()
@@ -536,7 +540,7 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
             context['current_date'] = current_date
             
             assignment_list = Assignment.objects.filter(course__course_id = course_id).all().order_by('due_date', 'name').values()
-            student_list = Student.objects.filter(studentcourse__course__course_id = course_id).all().order_by('sortable_name').values()
+            student_list = User.objects.filter(usercourse__course__course_id = course_id).all().order_by('sortable_name').values()
             
             submissions = []
             for student in student_list:
@@ -564,14 +568,4 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
     def get_queryset(self):
         return self.model.objects.all().order_by('student_id' , 'assignment_id')
     
-    
-class PACSCourseRotation(CurrentUserMixin,CCETemplateView):
-    sidebar_group = ['faculty_tools', 'course_rotation']
-    template_name = 'course_rotation.html'
-    page_title = 'PACS Course Rotation'    
-    
-class PACSCourseSME(CurrentUserMixin,CCETemplateView):
-    sidebar_group = ['faculty_tools', 'course_sme']
-    template_name = 'course_sme.html'
-    page_title = 'PACS Course SME'   
     

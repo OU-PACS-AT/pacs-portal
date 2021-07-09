@@ -1,4 +1,6 @@
+# Django Core
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.core.exceptions import PermissionDenied
 
@@ -11,6 +13,7 @@ from nucleus.api import CanvasAPI
 from datetime import datetime, timedelta, tzinfo, date, time
 import logging
 import requests
+import csv
 
 # Toolkit views
 from toolkit.views import CCECreateView, CCECreateWithInlinesView, CCEDeleteView, CCEDetailView, \
@@ -19,11 +22,13 @@ from toolkit.views import CCECreateView, CCECreateWithInlinesView, CCEDeleteView
     ReportDownloadDetailView, ReportDownloadSearchView
 
 # Form imports
-from forms import CourseSimpleSearchForm, CourseAdvancedSearchForm, StudentSimpleSearchForm, TermSimpleSearchForm, SubaccountSimpleSearchForm
-from forms import AssignmentSimpleSearchForm, AssignmentAdvancedSearchForm, StudentCourseSimpleSearchForm, StudentCourseAdvancedSearchForm
-from models import Course, Student, Term, Subaccount
-from faculty_tools.models import Assignment, StudentCourse
-
+from forms import CourseSimpleSearchForm, CourseAdvancedSearchForm, TermSimpleSearchForm, SubaccountSimpleSearchForm
+from forms import AssignmentSimpleSearchForm, AssignmentAdvancedSearchForm
+from forms import UserSimpleSearchForm, UserCourseSimpleSearchForm, UserCourseAdvancedSearchForm 
+from forms import TeacherWeeklyReportSimpleSearchForm
+from models import Course, Term, Subaccount, User, UserCourse
+from models import TeacherWeeklyReport, TeacherWeeklyReportDiscussions, TeacherWeeklyReportAssignments
+from faculty_tools.models import Assignment
 
 class CourseListView(CurrentUserMixin, CCESearchView):
     model = Course
@@ -103,11 +108,11 @@ class AdminCourseListView(CurrentUserMixin, CCESearchView):
         
         return buttons
     
-class StudentListView(CurrentUserMixin, CCESearchView):
-    model = Student
-    page_title = 'Student List'
-    search_form_class = StudentSimpleSearchForm
-    sidebar_group = ['canvas', 'canvas_student_list']
+class UserListView(CurrentUserMixin, CCESearchView):
+    model = User
+    page_title = 'Canvas User List'
+    search_form_class = UserSimpleSearchForm
+    sidebar_group = ['canvas', 'canvas_user_list']
     columns = [
         ('Name', 'sortable_name'),
         ('Login ID', 'login_id'),        
@@ -239,16 +244,16 @@ class AssignmentListView(CurrentUserMixin, CCESearchView):
                 context['load_date'] = load_date.created_at
         
         return context
-    
-class StudentCourseListView(CurrentUserMixin, CCESearchView):
-    model = StudentCourse
-    page_title = 'Student Course List'
-    search_form_class = StudentCourseSimpleSearchForm
-    advanced_search_form_class = StudentCourseAdvancedSearchForm
+
+class UserCourseListView(CurrentUserMixin, CCESearchView):
+    model = UserCourse
+    page_title = 'User Course List'
+    search_form_class = UserCourseSimpleSearchForm
+    advanced_search_form_class = UserCourseAdvancedSearchForm
     template_name = 'reloadable_list.html'
-    sidebar_group = ['canvas', 'canvas_studentcourse_list']
+    sidebar_group = ['canvas', 'canvas_usercourse_list']
     columns = [
-        ('Student', 'student'),        
+        ('User', 'user'),        
         ('Course', 'course'),
     ]
     paginate_by = 50
@@ -267,28 +272,28 @@ class StudentCourseListView(CurrentUserMixin, CCESearchView):
                 course = Course.objects.filter(course_id = course_id).first()
                 self.model.objects.filter(course = course).all().delete()
                 
-                student_list = api.get_students(course_id)
-                for student in student_list:
-                    localstudent = Student.objects.filter(canvas_id = int(student['id'])).first()
-                    if localstudent is not None:
-                        self.model.user_objects.create(student = localstudent, course = course)
+                user_list = api.get_users(course_id)
+                for user in user_list:
+                    localuser = User.objects.filter(canvas_id = int(user['id'])).first()
+                    if localuser is not None:
+                        self.model.user_objects.create(user = localuser, course = course)
         
-        return super(StudentCourseListView, self).get(request, *args, **kwargs)
+        return super(UserCourseListView, self).get(request, *args, **kwargs)
     
     def get_queryset(self, *args, **kwargs):
-        queryset = super(StudentCourseListView,self).get_queryset()
+        queryset = super(UserCourseListView,self).get_queryset()
         
         course_id = None
         if 'course_id' in self.kwargs:
             course_id = self.kwargs['course_id']
         
         if course_id is not None:
-            queryset = queryset.filter(course__course_id = int(course_id)).all().order_by('student__sortable_name')
+            queryset = queryset.filter(course__course_id = int(course_id)).all().order_by('user__sortable_name')
             
         return queryset
     
     def get_context_data(self, *args, **kwargs):
-        context = super(StudentCourseListView, self).get_context_data(*args, **kwargs) 
+        context = super(UserCourseListView, self).get_context_data(*args, **kwargs) 
         course_id = None
         if 'course_id' in self.kwargs:
             course_id = int(self.kwargs['course_id'])
@@ -301,4 +306,90 @@ class StudentCourseListView(CurrentUserMixin, CCESearchView):
                 context['load_date'] = load_date.created_at
         
         return context
+
+
+####################################################
+# Teacher Weekly Report Functions
+####################################################
+
+class TeacherWeeklyReportListView(CurrentUserMixin, CCEListView):
+    model = TeacherWeeklyReport
+    page_title = 'Teacher Weekly Report List'
+    search_form_class = TeacherWeeklyReportSimpleSearchForm
+    sidebar_group = ['canvas', 'twr_list']
+    columns = [
+        ('Year', 'year'),
+        ('Week', 'week_number'),
+        ('Start Date', 'start_date'),
+        ('End Date', 'end_date'),
+    ]
     
+    def get_queryset(self):
+        results = self.model.objects.all().distinct('year', 'week_number')
+        return results
+    
+    def render_buttons(self, user, obj, *args, **kwargs):
+        buttons = super(TeacherWeeklyReportListView, self).render_buttons(user, obj,
+                                                            *args, **kwargs)
+        
+        buttons.append(
+            self.render_button(btn_class='btn-warning btn-inline',
+                               button_text='Download CSV',
+                               icon_classes='glyphicon glyphicon-save',
+                               url= "/c/twr/" + str(obj.year) + "/" + str(obj.week_number) + "/",
+                               label="Download CSV",
+                               condensed=False,)
+        )
+        
+        return buttons
+    
+def teacherWeeklyReportCSVDownload(request, **kwargs):
+    if 'year' in kwargs :
+        try:
+            year = int(kwargs['year'])
+        except:
+            year = None
+    else:
+        year = None    
+
+    if 'week' in kwargs:
+        try:
+            week = int(kwargs['week'])
+        except:
+            week = None
+    else:
+        week = None 
+    
+    if week is None or year is None:
+        return redirect('')
+    
+    twr = TeacherWeeklyReport.objects.filter(year = year, week_number = week)
+    
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=FacultyWeeklyReport_' + str(year) + '_' + str(week) + '.csv'
+    writer = csv.writer(response)
+    
+    #Report Info
+    first_record = twr.first()
+    writer.writerow(["Year", "Week", "Start Date", "End Date"])
+    writer.writerow([first_record.year, first_record.week_number, first_record.start_date, first_record.end_date])
+    writer.writerow([])
+    writer.writerow([])
+    writer.writerow(["Course", "Teacher", "Last Login", "Announcement Posted", "Announcement Post Date"])
+    writer.writerow(['', "Discussion", "Discussion ID", "Discussion Name", "Due Date", "Unique Entry Count", "Reply Count"])
+    writer.writerow(['', "Assignment", "Assignment ID", "Assignment Name", "Due Date", "Submission Count", "Comment Count"])
+    writer.writerow([])
+    
+    for twr_record in twr:
+        writer.writerow([twr_record.usercourse.course.name, twr_record.usercourse.user.name, twr_record.last_login, twr_record.announcement_posted, twr_record.announcement_post_date])
+        discussions = TeacherWeeklyReportDiscussions.objects.filter(teacherweeklyreport = twr_record)
+        for disc in discussions:
+            writer.writerow(['', "Discussion", disc.discussion_id, disc.discussion_name, disc.due_date, disc.unique_entry_count, disc.reply_count])
+        assignments = TeacherWeeklyReportAssignments.objects.filter(teacherweeklyreport = twr_record)
+        for assn in assignments:
+            writer.writerow(['', "Assignment", assn.assignment_id, assn.assignment_name, assn.due_date, assn.submission_count, assn.comment_count])
+    
+    return response
+    
+

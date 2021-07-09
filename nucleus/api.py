@@ -1,10 +1,11 @@
 __author__ = 'Will Poillion & Cary Stringfield'
-
+from datetime import datetime, timedelta
 import itertools
 import requests
 import logging
 
 from nucleus import settings
+from canvas.models import ActiveTerm, Term
 
 class GroupSetBuilder():
     def __init__(self):
@@ -29,7 +30,7 @@ class CanvasAPI():
             self.DEBUG = debug
         else:
             self.DEBUG = settings.DEBUG
-        self.DEBUG = False
+        #self.DEBUG = False
         
         if sub_account is not None:
             self.SUB_ACCOUNT = sub_account
@@ -39,8 +40,7 @@ class CanvasAPI():
         if term is not None:
             self.TERM = term
         else:
-            self.TERM = settings.CURRENT_TERM
-
+            self.TERM = ActiveTerm.objects.order_by('-active_term')[0].active_term.term_id
 
     def put(self, api_url, payload=None):
         url = self.api_url + api_url
@@ -205,6 +205,9 @@ class CanvasAPI():
     
     def get_students(self, course_id):
         return self.get('/courses/%s/students' % course_id)
+    
+    def get_users(self, course_id):
+        return self.get('/courses/%s/users?include[]=enrollments' % course_id)
 
     def get_account_users(self):
         return self.get('/accounts/%s/users' % self.SUB_ACCOUNT)
@@ -268,14 +271,6 @@ class CanvasAPI():
             account = self.SUB_ACCOUNT
         return self.get('/accounts/%s/courses?enrollment_term_id=%s' % (account, term))
 
-
-
-
-
-
-
-
-
     def get_quiz_submissions(self, course_id, quiz_id):
         return self.get(
             '/courses/%s/quizzes/%s/submissions' % (course_id, quiz_id))
@@ -290,8 +285,7 @@ class CanvasAPI():
         :return:
         """
         payload = {'grouped': grouped}
-        submissions = self.get('/courses/%s/assignments/%s/submissions' % (
-        course_id, assignment_id), payload=payload)
+        submissions = self.get('/courses/%s/assignments/%s/submissions?include[]=submission_comments' % (course_id, assignment_id), payload=payload)
         return filter(lambda sub: sub['workflow_state'] != 'unsubmitted',
                       submissions)
 
@@ -353,7 +347,57 @@ class CanvasAPI():
                     attachments[attachment['filename']] = r.text
         return attachments
     
+    ##################################################
+    ### API Calls for Faculty Performance Report #####
     
+    def get_user_details(self, user_id):
+        return self.get('/users/%s?include[]=last_login' % user_id, single=True)
     
+    def get_course_announcements_for_date_range_by_teacher(self, course_id, author_id, start_date, end_date):
+        announcements_by_teacher = []
+        all_announcements = self.get('/announcements?context_codes[]=course_%s&start_date=%s&end_date=%s&active_only=true' % (course_id, start_date, end_date))
+        #print ("API CALL ALL ANNOUNCEMENTS: " + str(all_announcements))
+        for announcement in all_announcements:
+            #print ("Announcement Test: ID1:" + str(announcement["author"]["id"]) + " ID2: " + str(author_id))
+            if announcement["author"].has_key("id"):
+                if announcement["author"]["id"] == author_id:
+                    announcements_by_teacher.append(announcement)
+        return announcements_by_teacher
     
+    def get_course_discussions(self, course_id):
+        return self.get('/courses/%s/discussion_topics' % course_id)
+
+    def get_course_discussions_with_due_date_in_range(self, course_id, start_date, end_date):
+        valid_discussions = []
+        all_discussions = self.get('/courses/%s/discussion_topics?per_page=100000' % course_id)
+        for discussion in all_discussions:
+            if discussion.has_key("assignment"):
+                if discussion["assignment"].has_key("due_at") and discussion["assignment"]["due_at"] is not None:
+                    due_date = datetime.strptime(discussion["assignment"]["due_at"], '%Y-%m-%dT%H:%M:%SZ')
+                    #print("Asgment: " + str(assignment["name"]) + " DueDate: " + str(due_date))
+                    if (start_date < due_date and end_date > due_date):
+                        #print ("StartDate: " + str(start_date) + " EndDate: " + str(end_date))
+                        #print ("Submission Types: " + str(assignment["submission_types"]))
+                        valid_discussions.append(discussion)
+
+        return valid_discussions
+    
+    def get_course_discussion_full(self, course_id, discussion_id):
+        return self.get('/courses/%s/discussion_topics/%s/view' % (course_id, discussion_id))
+
+    def get_online_upload_assignments_with_due_date_in_range(self, course_id, start_date, end_date):
+        upload_assignments = []
+        all_assignments = self.get('/courses/%s/assignments?per_page=100000' % course_id)
+        for assignment in all_assignments:
+            if assignment["due_at"] is not None:
+                due_date = datetime.strptime(assignment["due_at"], '%Y-%m-%dT%H:%M:%SZ')
+                #print("Asgment: " + str(assignment["name"]) + " DueDate: " + str(due_date))
+                if (start_date < due_date and end_date > due_date):
+                    #print ("StartDate: " + str(start_date) + " EndDate: " + str(end_date))
+                    #print ("Submission Types: " + str(assignment["submission_types"]))
+                    if "online_upload" in assignment["submission_types"]:
+                        #print("Assignmend ADDED!!!")
+                        upload_assignments.append(assignment)
+                        
+        return upload_assignments
 

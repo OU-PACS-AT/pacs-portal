@@ -5,13 +5,10 @@ from django.conf.urls import url, include
 from nucleus.decorators import is_admin, is_member
 
 # View imports
-from faculty_tools.views import PACSCourseRotation, PACSCourseSME, CourseListView, EditDueDates, AssignmentListView, StudentListView, SubmissionListView
+from faculty_tools.views import CourseListView, EditDueDates, AssignmentListView, StudentListView, SubmissionListView
 from canvas.views import CourseListView as CanvasCourseListView
 
 urlpatterns = [
-
-    url(r'^course_rotation', is_member(PACSCourseRotation.as_view(), ["PACSATAdvising"]), name="course_rotation"),
-    url(r'^course_sme', is_member(PACSCourseSME.as_view(), ["PACSATAdvising"]), name="course_sme"),
 
     url(r'^course_list/', include([
         url(r'^(?P<course_id>\d+)/', include([
