@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from nucleus.mixins import CurrentUserMixin
 from nucleus.auth import UserCredentials
 from nucleus.api import CanvasAPI
+from nucleus import settings
 
 # Library imports
 from datetime import datetime, timedelta, tzinfo, date, time
@@ -81,10 +82,10 @@ class AdminCourseListView(CurrentUserMixin, CCESearchView):
         
         buttons.append(
             self.render_button(btn_class='btn-warning btn-inline',
-                               button_text='View Students',
+                               button_text='View Users',
                                icon_classes='fas fa-user-graduate',
-                               url= "/c/studentcourse/" + str(obj.course_id) + "/",
-                               label="View Students",
+                               url= "/c/usercourse/" + str(obj.course_id) + "/",
+                               label="View Users",
                                condensed=False,)
         )
         
@@ -365,6 +366,11 @@ def teacherWeeklyReportCSVDownload(request, **kwargs):
     
     twr = TeacherWeeklyReport.objects.filter(year = year, week_number = week)
     
+    if hasattr(settings, 'CANVAS_COURSE_BASE_URL'):
+        canvas_base_url = settings.CANVAS_COURSE_BASE_URL
+    else:
+        canvas_base_url = "https://canvas.ou.edu/courses/"
+    
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=FacultyWeeklyReport_' + str(year) + '_' + str(week) + '.csv'
@@ -376,19 +382,24 @@ def teacherWeeklyReportCSVDownload(request, **kwargs):
     writer.writerow([first_record.year, first_record.week_number, first_record.start_date, first_record.end_date])
     writer.writerow([])
     writer.writerow([])
-    writer.writerow(["Course", "Teacher", "Last Login", "Announcement Posted", "Announcement Post Date"])
-    writer.writerow(['', "Discussion", "Discussion ID", "Discussion Name", "Due Date", "Unique Entry Count", "Reply Count"])
-    writer.writerow(['', "Assignment", "Assignment ID", "Assignment Name", "Due Date", "Submission Count", "Comment Count"])
+    writer.writerow(["Course Link", "Course", "Teacher", "Last Login", "Announcement Posted", "Announcement Post Date"])
+    writer.writerow(['', '', "Discussion", "Discussion ID", "Discussion Name", "Due Date", "Unique Entry Count", "Reply Count", "Reply %", "Teacher Unique Entry Count", "Submission Count", "Comment Count"])
+    writer.writerow(['', '', "Assignment", "Assignment ID", "Assignment Name", "Due Date", "Submission Count", "Comment Count"])
     writer.writerow([])
     
     for twr_record in twr:
-        writer.writerow([twr_record.usercourse.course.name, twr_record.usercourse.user.name, twr_record.last_login, twr_record.announcement_posted, twr_record.announcement_post_date])
+        course_url = canvas_base_url + str(twr_record.usercourse.course.course_id)
+        writer.writerow([course_url, twr_record.usercourse.course.name, twr_record.usercourse.user.name, twr_record.last_login, twr_record.announcement_posted, twr_record.announcement_post_date])
         discussions = TeacherWeeklyReportDiscussions.objects.filter(teacherweeklyreport = twr_record)
         for disc in discussions:
-            writer.writerow(['', "Discussion", disc.discussion_id, disc.discussion_name, disc.due_date, disc.unique_entry_count, disc.reply_count])
+            if disc.unique_entry_count == 0:
+                reply_percent = 0
+            else:
+                reply_percent = ((float(disc.reply_count) / float(disc.unique_entry_count)) * 100)
+            writer.writerow(['', '', "Discussion", disc.discussion_id, disc.discussion_name, disc.due_date, disc.unique_entry_count, disc.reply_count, reply_percent, disc.teacher_unique_entry_count, disc.submission_count, disc.submission_comment_count])
         assignments = TeacherWeeklyReportAssignments.objects.filter(teacherweeklyreport = twr_record)
         for assn in assignments:
-            writer.writerow(['', "Assignment", assn.assignment_id, assn.assignment_name, assn.due_date, assn.submission_count, assn.comment_count])
+            writer.writerow(['', '', "Assignment", assn.assignment_id, assn.assignment_name, assn.due_date, assn.submission_count, assn.comment_count])
     
     return response
     

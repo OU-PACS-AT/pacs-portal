@@ -92,8 +92,6 @@ def run_teacher_weekly_report(report_date=None):
         get_teacher_weekly_report_assignments(teacherweeklyreportrecord)
         get_teacher_weekly_report_discussions(teacherweeklyreportrecord)
         
-        #print (str(teachercourse.course.course_id) + " - Announcements: " + str(announcements))
-        #print("TeacherCourse Record: " + str(teachercourse))
 
 def get_teacher_weekly_report_assignments(teacherweeklyreportrecord):
     
@@ -102,15 +100,15 @@ def get_teacher_weekly_report_assignments(teacherweeklyreportrecord):
     course_id = teacherweeklyreportrecord.usercourse.course.course_id
     teacher_id = teacherweeklyreportrecord.usercourse.user.canvas_id
     
-    api = CanvasAPI()
+    course = Course.objects.filter(course_id = course_id).first()
+    
+    api = CanvasAPI(course.term.term_id)
     
     assignments = api.get_online_upload_assignments_with_due_date_in_range( course_id, start_date, end_date)
     for assignment in assignments:
         assignment_id = assignment["id"]
         assignment_name = assignment["name"].encode('ascii', 'ignore')
         due_date = datetime.strptime(assignment["due_at"], '%Y-%m-%dT%H:%M:%SZ')
-        
-        print ("Assignment: " + assignment_name)
         
         submissions = api.get_assignment_submissions(course_id, assignment_id)
         submission_counter = 0
@@ -134,34 +132,56 @@ def get_teacher_weekly_report_discussions(teacherweeklyreportrecord):
     course_id = teacherweeklyreportrecord.usercourse.course.course_id
     teacher_id = teacherweeklyreportrecord.usercourse.user.canvas_id
     
-    api = CanvasAPI()
+    course = Course.objects.filter(course_id = course_id).first()
+    
+    api = CanvasAPI(course.term.term_id)
     
     discussions = api.get_course_discussions_with_due_date_in_range(course_id, start_date, end_date)
     for discussion in discussions:
         discussion_id = discussion["id"]
         discussion_name = discussion["title"].encode('ascii', 'ignore')
         due_date = datetime.strptime(discussion["assignment"]["due_at"], '%Y-%m-%dT%H:%M:%SZ')
-        
-        print ("Discussions: " + discussion_name)
+        discussion_assignment_id = discussion["assignment_id"]
         
         discussion_all_views = api.get_course_discussion_full(course_id, discussion_id)
         views = discussion_all_views["view"]
         
+        teacher_top_level_reply_counter = 0
         top_level_reply_counter = 0
         reply_counter = 0
         for view in views:
             #print ("Current Submission: " + str(submission))
-            top_level_reply_counter = top_level_reply_counter + 1
-            if view.has_key("replies"):
-                replies = view["replies"]
-                for reply in replies:
-                    if reply.has_key("user_id"):
-                        if reply["user_id"] == teacher_id:
-                            reply_counter = reply_counter + 1
-                            #print ("Reply Counter: " + str(reply_counter))
+            if 'user_id' in view:
+                if view["user_id"] == teacher_id:
+                    teacher_top_level_reply_counter = teacher_top_level_reply_counter + 1
+                top_level_reply_counter = top_level_reply_counter + 1
+                if view.has_key("replies"):
+                    replies = view["replies"]
+                    for reply in replies:
+                        if reply.has_key("user_id"):
+                            if reply["user_id"] == teacher_id:
+                                reply_counter = reply_counter + 1
+                                #print ("Reply Counter: " + str(reply_counter))
+                                break
+                        
+        discussion_submissions = api.get_assignment_submissions(course_id, discussion_assignment_id)
+        
+        discussion_submission_counter = 0
+        discussion_teacher_comment_counter = 0
+        for discussion_submission in discussion_submissions:
+            if 'missing' in discussion_submission:
+                if discussion_submission['missing'] is False:
+                    discussion_submission_counter = discussion_submission_counter + 1
+                    submission_comments = discussion_submission["submission_comments"]
+                    for submission_comment in submission_comments:
+                        if submission_comment["author_id"] == teacher_id:
+                            discussion_teacher_comment_counter = discussion_teacher_comment_counter + 1
                             break
                     
-        teacherweeklyreportdiscussionsrecord = TeacherWeeklyReportDiscussions.objects.create(teacherweeklyreport = teacherweeklyreportrecord, discussion_id = discussion_id, discussion_name = discussion_name, due_date = due_date, unique_entry_count = top_level_reply_counter, reply_count = reply_counter)
+        teacherweeklyreportdiscussionsrecord = TeacherWeeklyReportDiscussions.objects.create(teacherweeklyreport = teacherweeklyreportrecord, discussion_id = discussion_id, \
+                                                                                             discussion_name = discussion_name, due_date = due_date, unique_entry_count = top_level_reply_counter, \
+                                                                                             reply_count = reply_counter, teacher_unique_entry_count = teacher_top_level_reply_counter, \
+                                                                                             submission_count = discussion_submission_counter, submission_comment_count = discussion_teacher_comment_counter)
         teacherweeklyreportdiscussionsrecord.save()
 
 

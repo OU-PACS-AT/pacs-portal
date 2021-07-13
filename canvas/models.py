@@ -151,6 +151,9 @@ class TeacherWeeklyReportDiscussions(ReportModel):
     due_date = models.DateField(auto_now = False, auto_now_add=False)
     unique_entry_count = models.IntegerField()
     reply_count = models.IntegerField()
+    teacher_unique_entry_count = models.IntegerField()
+    submission_count = models.IntegerField()
+    submission_comment_count = models.IntegerField()
 
     class Meta:
         verbose_name_plural = "TeacherWeeklyReportDiscussions"

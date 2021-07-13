@@ -168,8 +168,11 @@ class CanvasAPI():
             canvasID = user['id']
         return canvasID
     
-    def get_class_by_teacher(self, canvasID):
-        return self.get('/accounts/%s/courses?published=true&by_teachers[]=%s&enrollment_term_id=%s' % (self.SUB_ACCOUNT, canvasID, self.TERM))
+    def get_class_by_teacher(self, canvasID, termID = None):
+        if termID is None:
+            termID = self.TERM
+            
+        return self.get('/accounts/%s/courses?published=true&by_teachers[]=%s&enrollment_term_id=%s' % (self.SUB_ACCOUNT, canvasID, termID))
 
     def get_user(self, user_id):
         return self.get('/users/%s/profile' % user_id, single=True)
@@ -285,7 +288,7 @@ class CanvasAPI():
         :return:
         """
         payload = {'grouped': grouped}
-        submissions = self.get('/courses/%s/assignments/%s/submissions?include[]=submission_comments' % (course_id, assignment_id), payload=payload)
+        submissions = self.get('/courses/%s/assignments/%s/submissions?include[]=submission_comments&per_page=10000' % (course_id, assignment_id), payload=payload)
         return filter(lambda sub: sub['workflow_state'] != 'unsubmitted',
                       submissions)
 

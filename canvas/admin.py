@@ -156,7 +156,7 @@ class UserCourseAdmin(admin.ModelAdmin):
 
     def reload_usercourse(self, request, term_id):
         term = Term.objects.filter(term_id = term_id).first()        
-        self.model.objects.filter(course__term = term).delete()
+        #self.model.objects.filter(course__term = term).delete()
         creds = UserCredentials()
         api = CanvasAPI(term = term_id)
         
@@ -168,10 +168,16 @@ class UserCourseAdmin(admin.ModelAdmin):
                 if localuser is not None:
                     isTeacher = False
                     if (user["type"] == "TeacherEnrollment"):
-                        isTeacher = True 
-                    logging.warning("Creating UserCourse record for: " + str(localuser))
-                    usercourse_create = self.model.objects.create(user = localuser, course = course, is_teacher = isTeacher)
-                    usercourse_create.save()
+                        isTeacher = True
+                        
+                    usercourse_record = self.model.objects.filter(user = localuser, course = course).first()
+                    if usercourse_record is None: 
+                        #logging.warning("Creating UserCourse record for: " + str(localuser))
+                        usercourse_create = self.model.objects.create(user = localuser, course = course, is_teacher = isTeacher)
+                        usercourse_create.save()
+                    else:
+                        usercourse_record.is_teacher = isTeacher
+                        usercourse_record.save()
             
         self.message_user(request, "User Course (Enrollments) list successfully reloaded!")
         return HttpResponseRedirect("../../")

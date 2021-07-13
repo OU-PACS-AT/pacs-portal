@@ -22,7 +22,7 @@ import requests
 # Form imports
 from faculty_tools.forms import CourseSimpleSearch, AssignmentDatesForm, AssignmentSimpleSearch, UserSimpleSearch, SubmissionSimpleSearch
 from faculty_tools.models import Assignment, Submission
-from canvas.models import Course as CanvasCourse, User, Subaccount, Term, UserCourse
+from canvas.models import Course as CanvasCourse, User, Subaccount, Term, UserCourse, ActiveTerm
 
 class CourseListView(CurrentUserMixin, CCESearchView):
     model = CanvasCourse
@@ -32,6 +32,7 @@ class CourseListView(CurrentUserMixin, CCESearchView):
     sidebar_group = ['faculty_tools', 'course_list']
     columns = [
         ('Course ID', 'course_id'),
+        ('Term', 'term'),
         ('Name', 'name'),
     ]
     paginate_by = 20
@@ -41,34 +42,40 @@ class CourseListView(CurrentUserMixin, CCESearchView):
         creds = UserCredentials()
         api = CanvasAPI()
         
-        canvasID = api.get_canvasID(creds.get_OUNetID())
-        api_response = api.get_class_by_teacher(canvasID)
-        api_list = list(api_response)
+        activeTerms = ActiveTerm.objects.order_by('-active_term')
         
-        for course in api_list:
-            course_id = int(course['id'])
-            course_found = self.model.objects.filter(course_id = course_id).first() 
-
-            if course_found is None:
-                term_id = api.TERM
-                term = Term.objects.filter(term_id = term_id).first() 
-                subaccount = Subaccount.objects.filter(subaccount_id = course['account_id']).first()
-                course_create = self.model.objects.create(course_id = course_id, name = course['name'], course_code = course['course_code'], term = term, subaccount = subaccount)
-                course_create.save()
-
+        for activeTerm in activeTerms:
+            term = activeTerm.active_term
+            canvasID = api.get_canvasID(creds.get_OUNetID())
+            api_response = api.get_class_by_teacher(canvasID, term.term_id)
+            api_list = list(api_response)
+            
+            for course in api_list:
+                course_id = int(course['id'])
+                course_found = self.model.objects.filter(course_id = course_id).first() 
+    
+                if course_found is None:
+                    subaccount = Subaccount.objects.filter(subaccount_id = course['account_id']).first()
+                    course_create = self.model.objects.create(course_id = course_id, name = course['name'], course_code = course['course_code'], term = term, subaccount = subaccount)
+                    course_create.save()
+    
         return super(CourseListView, self).get(request, *args, **kwargs)
     
     def get_queryset(self):
         creds = UserCredentials()
         api = CanvasAPI()
 
-        canvasID = api.get_canvasID(creds.get_OUNetID())
-        api_response = api.get_class_by_teacher(canvasID)
-        api_list = list(api_response)
+        activeTerms = ActiveTerm.objects.order_by('-active_term')
         
+        canvasID = api.get_canvasID(creds.get_OUNetID())
         course_ids = []
-        for course in api_list:
-            course_ids.append(int(course['id']))
+        for activeTerm in activeTerms:
+            term = activeTerm.active_term
+            api_response = api.get_class_by_teacher(canvasID, term.term_id)
+            api_list = list(api_response)
+            
+            for course in api_list:
+                course_ids.append(int(course['id']))
 
         return self.model.objects.filter(course_id__in =course_ids)
     
@@ -134,11 +141,12 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
 
     def get(self, request, *args, **kwargs):
         creds = UserCredentials()
-        api = CanvasAPI()
 
         course_id = int(self.kwargs['course_id'])
         course = CanvasCourse.objects.filter(course_id = course_id).first()
-
+        api = CanvasAPI(term = course.term.term_id)
+        logging.warning("Term Set as : " + str(course.term.term_id))
+        
         api.is_teacher_of_course(course_id, creds.get_OUNetID())
         if not api.is_teacher_of_course(course_id, creds.get_OUNetID()):
             raise PermissionDenied
@@ -217,10 +225,12 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
         if ('assignment_id' in self.kwargs and 'student_id' in self.kwargs):
             self.assignment_id = self.kwargs['assignment_id']
             self.student_id = self.kwargs['student_id']
-        
         data = super(EditDueDates,self).get_context_data(**kwargs)
-        api = CanvasAPI()
+        
+        course = CanvasCourse.objects.filter(course_id = course_id).first()
+        api = CanvasAPI(term = course.term.term_id)
         creds = UserCredentials()
+        
         if  (hasattr(self,'assignment_id') and hasattr(self,'student_id')):
             data['assignment_id'] = self.assignment_id
             data['assignment_name'] = Assignment.objects.filter(assignment_id = self.assignment_id).first()
@@ -260,10 +270,11 @@ class EditDueDates(CurrentUserMixin, CCEModelFormSetView):
 
     def formset_valid(self, formset):
         course_id = self.kwargs['course_id']
+        course = CanvasCourse.objects.filter(course_id = course_id).first()
+        capi = CanvasAPI(term = course.term.term_id)
+        creds = UserCredentials()
 
         cleaned_data = formset.clean()
-        capi = CanvasAPI() 
-        creds = UserCredentials()
         
         for form in formset:
             if form.has_changed():
@@ -328,7 +339,7 @@ class AssignmentListView(CurrentUserMixin, CCESearchView):
         course_id = int(self.kwargs['course_id'])
         self.model.objects.filter(course__course_id = course_id).delete()
         course = CanvasCourse.objects.filter(course_id = course_id).first()
-        api = CanvasAPI()
+        api = CanvasAPI(term = course.term.term_id)
 
         json_data = api.get_assignments(course_id)
         json_list = list(json_data) #the data from canvas
@@ -401,7 +412,7 @@ class StudentListView(CurrentUserMixin, CCESearchView):
         course_id = int(self.kwargs['course_id'])
         UserCourse.objects.filter(course__course_id = course_id).delete()
         course = CanvasCourse.objects.filter(course_id = course_id).first()
-        api = CanvasAPI()
+        api = CanvasAPI(term = course.term.term_id)
         assignment_id = self.kwargs['assignment_id']
         
         json_data = api.get_students(course_id)
@@ -460,12 +471,11 @@ class SubmissionListView(CurrentUserMixin, CCESearchView):
         course_id = int(self.kwargs['course_id'])
         reload = request.GET.get('reload', False) == "True"
         existing_records = self.model.objects.filter(assignment__course__course_id = course_id).first()
+        course = CanvasCourse.objects.filter(course_id = course_id).first()
         
         if existing_records is None or reload:
-            api = CanvasAPI()
+            api = CanvasAPI(course.term.term_id)
 
-            course = CanvasCourse.objects.filter(course_id = course_id).first()
-            
             # Delete existing data
             self.model.objects.filter(assignment__course = course).all().delete()
             Assignment.objects.filter(course = course).all().delete()
