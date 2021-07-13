@@ -21,9 +21,9 @@ urlpatterns = [
     # Added for TeacherWeeklyReport list and download
     # Need permissions on these!!
     url(r'^twr/', include([
-        url(r'^(?P<year>\d+)/(?P<week>\d+)/$', teacherWeeklyReportCSVDownload,
+        url(r'^(?P<year>\d+)/(?P<week>\d+)/$', is_member(teacherWeeklyReportCSVDownload, ["PACSATAdvising"]),
             name='twr_download'),
-        url(r'^$', TeacherWeeklyReportListView.as_view(),
+        url(r'^$', is_member(TeacherWeeklyReportListView.as_view(), ["PACSATAdvising"]),
             name='twr_list'),   
     ])),
 
