@@ -12,7 +12,7 @@
 {% if user_is_faculty or user_is_pacsatadvising or user_is_admin %}{% include 'faculty_tools_sidebar.html' %}{% endif %}
 {% if user_is_faculty or user_is_admin %}{% include 'faculty_resources_sidebar.html' %}{% endif %}
 
-{% if user_is_admin %}
+{% if user_is_admin or user_is_pacsatadvising %}
   		<li class=""> 
           	<div class="spacer"></div>
            <div class="spacer"></div>
