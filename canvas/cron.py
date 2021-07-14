@@ -41,7 +41,10 @@ def run_teacher_weekly_report(report_date=None):
     year = end_of_week.year
     start_of_week_str = start_of_week.strftime("%Y-%m-%d")
     end_of_week_str = end_of_week.strftime("%Y-%m-%d")
-    api = CanvasAPI()
+    
+    # Get oldest active term and run report based on that    
+    oldestActiveTerm = ActiveTerm.objects.order_by('active_term')[0].active_term.term_id
+    api = CanvasAPI(term = oldestActiveTerm)
     
     # Delete existing records for this year/week
     TeacherWeeklyReport.objects.filter(year = year).filter(week_number = week_num).delete()
